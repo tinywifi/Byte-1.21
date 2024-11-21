@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory;
 
 public class Byte implements ModInitializer {
 	public static final String MOD_ID = "byte";
-	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	public static final String NAME = "Byte", VERSION = "1.0.0"; // https://semver.org
+	public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
 
 	public static Byte INSTANCE = new Byte();
 	public EventBus eventBus;
@@ -26,9 +27,10 @@ public class Byte implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		final long time = System.currentTimeMillis();
 		eventBus.register(new EventListener());
 		ModuleManager.registerModules();
 		mc = MinecraftClient.getInstance();
-		LOGGER.info("Byte load");
+        LOGGER.info("Initialized {} in {}ms.", NAME, System.currentTimeMillis() - time);
 	}
 }
