@@ -39,7 +39,6 @@ public abstract class ChatMixin extends ClientCommonNetworkHandler {
      * @author
      * @reason
      */
-
     @Overwrite
     public void sendChatMessage(String content) {
         ChatEvent e = new ChatEvent(content);

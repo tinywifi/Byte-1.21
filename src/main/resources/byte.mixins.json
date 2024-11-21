@@ -2,17 +2,14 @@
   "required": true,
   "package": "com.syuto.bytes.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-    "EntityMixin",
-    "MinecraftMixin",
-    "RenderMixin"
-  ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
     "ChatMixin",
     "EntityMixin",
+    "MinecraftClientMixin",
+    "RenderMixin",
     "RenderWorldMixin"
   ]
 }
