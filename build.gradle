@@ -1,6 +1,5 @@
 plugins {
 	id 'fabric-loom' version '1.8-SNAPSHOT'
-	id 'maven-publish'
 }
 
 version = project.mod_version
@@ -11,22 +10,29 @@ base {
 }
 
 repositories {
-
+	mavenCentral()
 }
 
 dependencies {
-	//implementation "org.lwjgl:lwjgl-glfw:3.3.1"
-	//implementation "org.lwjgl:lwjgl:3.3.1"
-	//implementation "org.lwjgl:lwjgl-opengl:3.3.1"
-	//implementation "org.lwjgl:lwjgl-openal:3.3.1"
-	//implementation "org.lwjgl:lwjgl-stb:3.3.1"
-
-	implementation 'org.reflections:reflections:0.10.2'
+	// Minecraft.
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	
+
+	// Lombok
+	compileOnly("org.projectlombok:lombok:1.18.34")
+	annotationProcessor("org.projectlombok:lombok:1.18.34")
+
+	// Reflections
+	implementation 'org.reflections:reflections:0.10.2'
+
+	// NanoVG
+	implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}")
+	["windows", "linux"].forEach {
+		implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}:natives-${it}")
+	}
+
 }
 
 processResources {
@@ -42,8 +48,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-	withSourcesJar()
-
+//	withSourcesJar() // generate sources jar. (not needed)
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
 }
@@ -53,13 +58,4 @@ jar {
 		rename { "${it}_${project.base.archivesName.get()}"}
 	}
 }
-publishing {
-	publications {
-		create("mavenJava", MavenPublication) {
-			artifactId = project.archives_base_name
-			from components.java
-		}
-	}
-	repositories {
-	}
-}
+
