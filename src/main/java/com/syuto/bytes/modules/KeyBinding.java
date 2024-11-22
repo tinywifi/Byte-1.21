@@ -1,9 +1,6 @@
 package com.syuto.bytes.modules;
 
-import com.sun.jna.platform.KeyboardUtils;
 import org.lwjgl.glfw.GLFW;
-
-import static com.syuto.bytes.Byte.mc;
 
 public class KeyBinding {
     private int keyCode;
