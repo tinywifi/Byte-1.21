@@ -1,7 +1,8 @@
 package com.syuto.bytes.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.syuto.bytes.modules.impl.player.FastPlace;
+import com.syuto.bytes.module.ModuleManager;
+import com.syuto.bytes.module.impl.player.FastPlace;
 import me.twenty48lol.util.render.DrawUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
@@ -26,14 +27,15 @@ public class MinecraftClientMixin {
         DrawUtil.initializeNanoVG();
     }
 
-
-
     @Shadow
     private int itemUseCooldown;
 
     @Inject(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isItemEnabled(Lnet/minecraft/resource/featuretoggle/FeatureSet;)Z"))
     private void onDoItemUseHand(CallbackInfo ci, @Local ItemStack itemStack) {
-        itemUseCooldown = FastPlace.getItemUseCooldown(itemStack);
+        final FastPlace fastPlace = ModuleManager.getModule(FastPlace.class);
+        if (fastPlace.isEnabled()) {
+            itemUseCooldown = fastPlace.getItemUseCooldown(itemStack);
+        }
     }
 
 
