@@ -2,7 +2,7 @@ package com.syuto.bytes;
 
 import com.syuto.bytes.commands.CommandManager;
 import com.syuto.bytes.eventbus.EventBus;
-import com.syuto.bytes.eventbus.EventListener;
+import com.syuto.bytes.eventbus.Handlers;
 import com.syuto.bytes.module.ModuleManager;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.MinecraftClient;
@@ -17,21 +17,21 @@ public class Byte implements ModInitializer {
 
 	public static Byte INSTANCE = new Byte();
 	public EventBus eventBus;
-	public static MinecraftClient mc;
+	public static MinecraftClient mc = MinecraftClient.getInstance();
 	public CommandManager commandManager;
+	public Handlers handlers;
 
 	public Byte() {
 		eventBus = new EventBus();
 		commandManager = new CommandManager();
+		handlers = new Handlers();
 	}
-
 
 	@Override
 	public void onInitialize() {
 		final long time = System.currentTimeMillis();
-		eventBus.register(new EventListener());
 		ModuleManager.registerModules();
-		mc = MinecraftClient.getInstance();
+		eventBus.register(handlers);
         LOGGER.info("Initialized {} in {}ms.", NAME, System.currentTimeMillis() - time);
 	}
 }

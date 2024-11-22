@@ -3,11 +3,13 @@ package me.twenty48lol.util.render
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.MinecraftClient
+import org.lwjgl.nanovg.NVGColor
 import org.lwjgl.nanovg.NanoVG.*
 import org.lwjgl.nanovg.NanoVGGL3
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
+@Suppress("unused")
 object DrawUtil {
 
     private val mc get() = MinecraftClient.getInstance()
@@ -42,8 +44,20 @@ object DrawUtil {
     }
 
     @JvmStatic
-    fun rect(x: Number, y: Number, w: Number, h: Number, color: Color) {
-
+    fun rect(x: Number, y: Number, width: Number, height: Number, color: Color) {
+        NVGColor.calloc()
+            .r(color.red / 255f)
+            .g(color.green / 255f)
+            .b(color.blue / 255f)
+            .a(color.alpha / 255f)
+            .use { nvgColor ->
+                nvgBeginPath(context)
+                nvgShapeAntiAlias(context, true)
+                nvgRect(context, x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
+                nvgFillColor(context, nvgColor)
+//                nvgFill(context)
+                nvgClosePath(context)
+        }
     }
 
     /**

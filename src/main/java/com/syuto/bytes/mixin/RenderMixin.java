@@ -30,6 +30,5 @@ public abstract class RenderMixin {
     void renderTicker(DrawContext context, CallbackInfo ci) {
         RenderTickEvent e = new RenderTickEvent(getTicks());
         Byte.INSTANCE.eventBus.post(e);
-
     }
 }

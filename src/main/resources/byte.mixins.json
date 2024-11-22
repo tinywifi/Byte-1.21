@@ -1,15 +1,16 @@
 {
-  "required": true,
-  "package": "com.syuto.bytes.mixin",
-  "compatibilityLevel": "JAVA_21",
-  "injectors": {
-    "defaultRequire": 1
-  },
-  "client": [
-    "ChatMixin",
-    "EntityMixin",
-    "MinecraftClientMixin",
-    "RenderMixin",
-    "RenderWorldMixin"
-  ]
+    "required": true,
+    "package": "com.syuto.bytes.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "client": [
+        "ChatMixin",
+        "EntityMixin",
+        "KeyboardMixin",
+        "MinecraftClientMixin",
+        "RenderMixin",
+        "RenderWorldMixin"
+    ]
 }

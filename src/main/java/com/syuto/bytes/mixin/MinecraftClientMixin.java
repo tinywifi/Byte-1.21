@@ -33,7 +33,7 @@ public class MinecraftClientMixin {
     @Inject(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isItemEnabled(Lnet/minecraft/resource/featuretoggle/FeatureSet;)Z"))
     private void onDoItemUseHand(CallbackInfo ci, @Local ItemStack itemStack) {
         final FastPlace fastPlace = ModuleManager.getModule(FastPlace.class);
-        if (fastPlace.isEnabled()) {
+        if (fastPlace != null && fastPlace.isEnabled()) {
             itemUseCooldown = fastPlace.getItemUseCooldown(itemStack);
         }
     }

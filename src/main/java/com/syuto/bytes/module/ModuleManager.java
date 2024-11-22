@@ -21,6 +21,7 @@ public class ModuleManager {
                 Byte.LOGGER.error("Error registering modules.", e.getCause());
             }
         }
+        modules.sort(Comparator.comparing(Module::getName));
     }
 
     @SuppressWarnings("unchecked")

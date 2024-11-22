@@ -5,6 +5,7 @@ import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.setting.impl.NumberSetting;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import org.lwjgl.glfw.GLFW;
 
 public class FastPlace extends Module {
 
@@ -12,6 +13,7 @@ public class FastPlace extends Module {
 
     public FastPlace() {
         super("FastPlace", "Modify right click timer.", Category.PLAYER);
+        this.setKey(GLFW.GLFW_KEY_X);
     }
 
     public int getItemUseCooldown(ItemStack itemStack) {
