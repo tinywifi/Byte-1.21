@@ -1,6 +1,7 @@
 plugins {
 	id "fabric-loom" version "1.8-SNAPSHOT"
 	id "org.jetbrains.kotlin.jvm" version "2.0.21"
+	id "com.gradleup.shadow" version "8.3.5" // Use com.gradleup.shadow instead of com.github.johnrengelman.shadow
 }
 
 version = project.mod_version
@@ -15,29 +16,30 @@ repositories {
 }
 
 dependencies {
-	// Minecraft.
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	// Fabric loader.
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	// Fabric api.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	// Fabric language kotlin
-	modImplementation("net.fabricmc:fabric-language-kotlin:${project.kotlin_loader_version}")
 
-	// Lombok
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	modImplementation("net.fabricmc:fabric-language-kotlin:${project.kotlin_loader_version}")
 	compileOnly("org.projectlombok:lombok:1.18.34")
 	annotationProcessor("org.projectlombok:lombok:1.18.34")
 
-	// Reflections
 	implementation 'org.reflections:reflections:0.10.2'
+	include 'org.reflections:reflections:0.10.2'
+	implementation "org.slf4j:slf4j-api:1.7.32"
+	include "org.slf4j:slf4j-api:1.7.32"
+	implementation 'org.javassist:javassist:3.28.0-GA'
+	include 'org.javassist:javassist:3.28.0-GA'
 
-	// NanoVG
 	implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}")
+	include("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}")
 	["windows", "linux"].forEach {
 		implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}:natives-${it}")
+		include("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}:natives-${it}")
 	}
-
 }
 
 processResources {
@@ -59,7 +61,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 java {
-//	withSourcesJar() // generate sources jar. (not needed)
+	// withSourcesJar() // generate sources jar. (not needed)
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
 }
@@ -70,3 +72,13 @@ jar {
 	}
 }
 
+shadowJar {
+	archiveBaseName.set(project.name)
+	archiveVersion.set(project.version)
+	archiveClassifier.set("all")
+
+	mergeServiceFiles()
+
+	// Optional: minimize the dependencies to avoid conflicts and reduce jar size
+	minimize()
+}

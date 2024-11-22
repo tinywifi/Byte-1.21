@@ -17,7 +17,7 @@ public class RenderUtils {
 
     public static void renderEntityBox(Entity e, MatrixStack matrices) {
         float outlineThickness = 1.0f;
-        double expand = 0;
+        double expand = 1000;
         int color = 0;
 
         if (e instanceof LivingEntity) {
@@ -28,7 +28,6 @@ public class RenderUtils {
 
             float d = (float) expand / 40.0F;
 
-            // Set the color based on the entity type
             if (e instanceof PlayerEntity) {
                 color = 0xFF0000; // Red
             } else {

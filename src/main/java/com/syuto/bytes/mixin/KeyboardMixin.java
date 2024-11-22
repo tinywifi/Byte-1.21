@@ -26,6 +26,7 @@ public class KeyboardMixin {
         ) {
             final KeyEvent event = new KeyEvent(key, scancode, action, modifiers);
             Byte.INSTANCE.eventBus.post(event);
+            Byte.INSTANCE.handlers.onKey(event);
         }
     }
 

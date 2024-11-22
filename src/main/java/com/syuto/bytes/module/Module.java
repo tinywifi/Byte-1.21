@@ -3,6 +3,7 @@ package com.syuto.bytes.module;
 import com.syuto.bytes.Byte;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.setting.api.SettingHolder;
+import com.syuto.bytes.utils.impl.ChatUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -32,8 +33,10 @@ public abstract class Module extends SettingHolder {
             if (this.enabled) {
                 onEnable();
                 Byte.INSTANCE.eventBus.register(this);
+                ChatUtils.print("Enabled " + this.name);
             } else {
                 Byte.INSTANCE.eventBus.unregister(this);
+                ChatUtils.print("Disabled " + this.name);
                 onDisable();
             }
         }

@@ -8,26 +8,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class EventBus {
     private final Map<Class<?>, List<MethodListener>> listeners = new ConcurrentHashMap<>();
 
-    private static class MethodListener {
-        private final Object target;
-        private final Method method;
-
-        MethodListener(Object target, Method method) {
-            this.target = target;
-            this.method = method;
-        }
+    private record MethodListener(Object target, Method method) {
 
         void invoke(Object event) {
-            try {
-                if (!method.isAccessible()) {
+                try {
                     method.setAccessible(true);
+                    method.invoke(target, event);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                method.invoke(target, event);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
-    }
 
     public void register(Object listener) {
         System.out.println("Registering event listener: " + listener.getClass().getSimpleName());

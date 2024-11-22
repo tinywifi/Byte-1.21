@@ -14,10 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public class RenderWorldMixin {
 
-
-    @Shadow private int ticks;
-
-    @Inject(at = @At("TAIL"), method = "renderWorld")
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderHand(Lnet/minecraft/client/render/Camera;FLorg/joml/Matrix4f;)V"), method = "renderWorld")
     void render(RenderTickCounter renderTickCounter, CallbackInfo ci) {
         Byte.INSTANCE.eventBus.post(new RenderWorldEvent(renderTickCounter.getTickDelta(false)));
 

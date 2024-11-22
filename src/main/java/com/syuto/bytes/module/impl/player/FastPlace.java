@@ -13,7 +13,6 @@ public class FastPlace extends Module {
 
     public FastPlace() {
         super("FastPlace", "Modify right click timer.", Category.PLAYER);
-        this.setKey(GLFW.GLFW_KEY_X);
     }
 
     public int getItemUseCooldown(ItemStack itemStack) {
