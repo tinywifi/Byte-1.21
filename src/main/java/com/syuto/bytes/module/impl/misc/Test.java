@@ -1,27 +1,18 @@
-package com.syuto.bytes.modules.impl.misc;
+package com.syuto.bytes.module.impl.misc;
 
 import com.syuto.bytes.eventbus.EventHandler;
 import com.syuto.bytes.eventbus.impl.PreUpdateEvent;
 import com.syuto.bytes.eventbus.impl.RenderTickEvent;
-import com.syuto.bytes.eventbus.impl.RenderWorldEvent;
-import com.syuto.bytes.modules.Module;
-import com.syuto.bytes.utils.impl.ChatUtils;
-import com.syuto.bytes.utils.impl.render.RenderUtils;
-import net.minecraft.client.font.TextRenderer;
+import com.syuto.bytes.module.Module;
+import com.syuto.bytes.module.api.Category;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.InteractionEntity;
 import net.minecraft.entity.mob.SkeletonEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
-import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
 
@@ -30,7 +21,7 @@ import static com.syuto.bytes.Byte.mc;
 public class Test extends Module {
 
     public Test() {
-        super("Test", GLFW.GLFW_KEY_F25, "hi");
+        super("Test", "This module has 0 purpose.", Category.OTHER);
     }
 
     Color black = Color.BLACK;

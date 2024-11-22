@@ -2,11 +2,8 @@ package com.syuto.bytes.mixin;
 
 import com.mojang.authlib.GameProfile;
 import com.syuto.bytes.Byte;
-import com.syuto.bytes.commands.CommandManager;
-import com.syuto.bytes.eventbus.impl.ChatEvent;
 import com.syuto.bytes.eventbus.impl.PreMotionEvent;
 import com.syuto.bytes.eventbus.impl.PreUpdateEvent;
-import com.syuto.bytes.modules.ModuleManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -18,7 +15,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
-import net.minecraft.text.Text;
 import net.minecraft.util.Cooldown;
 import net.minecraft.util.PlayerInput;
 import net.minecraft.util.math.MathHelper;
@@ -32,6 +28,7 @@ import java.util.List;
 
 @Mixin(ClientPlayerEntity.class)
 public abstract class EntityMixin extends AbstractClientPlayerEntity {
+
     public EntityMixin(ClientWorld world, GameProfile profile) {
         super(world, profile);
     }
@@ -78,13 +75,10 @@ public abstract class EntityMixin extends AbstractClientPlayerEntity {
      * @author
      * @reason
      */
-
-
     @Overwrite
     public void tick() {
         this.itemDropCooldown.tick();
         Byte.INSTANCE.eventBus.post(new PreUpdateEvent());
-        ModuleManager.update();
         super.tick();
         this.sendSneakingPacket();
         if (!this.lastPlayerInput.equals(this.input.playerInput)) {
@@ -115,7 +109,6 @@ public abstract class EntityMixin extends AbstractClientPlayerEntity {
      * @author
      * @reason
      */
-
     @Overwrite
     private void sendMovementPackets() {
         this.sendSprintingPacket();
@@ -169,10 +162,5 @@ public abstract class EntityMixin extends AbstractClientPlayerEntity {
             this.autoJumpEnabled = (Boolean)this.client.options.getAutoJump().getValue();
         }
     }
-
-    /**
-     * @author
-     * @reason
-     */
 
 }

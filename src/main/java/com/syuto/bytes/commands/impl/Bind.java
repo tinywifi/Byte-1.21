@@ -1,11 +1,13 @@
 package com.syuto.bytes.commands.impl;
 
 import com.syuto.bytes.commands.Command;
-import com.syuto.bytes.modules.Module;
-import com.syuto.bytes.modules.ModuleManager;
+import com.syuto.bytes.module.Module;
+import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.utils.impl.ChatUtils;
 import com.syuto.bytes.utils.impl.keyboard.KeyboardUtil;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.List;
 
 
 public class Bind extends Command {
@@ -17,59 +19,36 @@ public class Bind extends Command {
     public void onCommand(String[] args, String message) {
         if (args.length == 2) {
             Module module = ModuleManager.getModule(args[0]);
-            String keyname = args[1].toUpperCase();
-
+            String keyName = args[1].toUpperCase();
             if (module != null) {
-                module.clearKeys();
-                if (keyname.equals("NONE")) {
-                    module.addKey(GLFW.GLFW_KEY_F25);
-                    ChatUtils.print("Unbound " + module.getName() + ".");
-                } else {
-                    int keyCode = KeyboardUtil.stringToGlfwKey(keyname); //Keyboard.getKeyIndex(keyname)
-                    if (keyCode == -1) {
-                        ChatUtils.print("Invalid key: " + keyname);
-                    } else {
-                        module.addKey(keyCode);
-                        ChatUtils.print("Bound " + module.getName() + " to " + keyname + ".");
-                    }
-                }
-                return;
+                int keyCode = KeyboardUtil.stringToGlfwKey(keyName); //Keyboard.getKeyIndex(keyName)
+                module.setKey(keyCode);
+                ChatUtils.print("Bound " + module.getName() + " to " + keyName + ".");
+            } else {
+                ChatUtils.print("Module \"" + args[0] + "\" was not found.");
             }
-            ChatUtils.print("Module \"" + args[0] + "\" was not found.");
             return;
         }
 
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("clear")) {
-                ModuleManager.getModules().values().forEach(Module::clearKeys);
+                ModuleManager.modules.forEach(m -> m.setKey(GLFW.GLFW_KEY_UNKNOWN));
                 ChatUtils.print("Cleared all binds.");
-                return;
             } else if (args[0].equalsIgnoreCase("list")) {
-                listBinds();
-                return;
+                final List<Module> boundModules = ModuleManager.modules.stream().filter(m -> m.getKey() != GLFW.GLFW_KEY_UNKNOWN).toList();
+                if (!boundModules.isEmpty()) {
+                    ChatUtils.print("Current binds: ");
+                    for (Module module : boundModules) {
+                        ChatUtils.print(module.getName() + ": " + module.getKey());
+                    }
+                } else {
+                    ChatUtils.print("No modules are currently bound.");
+                }
             }
+            return;
         }
 
         sendSyntaxHelpMessage();
     }
 
-    private void listBinds() {
-        int bound = 0;
-        for (Module module : ModuleManager.getModules().values()) {
-            if (!module.getKeys().isEmpty()) {
-                bound++;
-            }
-        }
-
-        if (bound > 0) {
-            ChatUtils.print("Current binds: ");
-            for (Module module : ModuleManager.getModules().values()) {
-                if (!module.getKeys().isEmpty()) {
-                    ChatUtils.print(module.getName() + ": " + module.getKeysString());
-                }
-            }
-        } else {
-            ChatUtils.print("No modules are currently bound.");
-        }
-    }
 }
