@@ -3,7 +3,7 @@ package com.syuto.bytes.commands.impl;
 import com.syuto.bytes.commands.Command;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.ModuleManager;
-import com.syuto.bytes.utils.impl.ChatUtils;
+import com.syuto.bytes.utils.impl.client.ChatUtils;
 import com.syuto.bytes.utils.impl.keyboard.KeyboardUtil;
 import org.lwjgl.glfw.GLFW;
 

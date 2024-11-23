@@ -1,6 +1,6 @@
 package com.syuto.bytes.commands;
 
-import com.syuto.bytes.utils.impl.ChatUtils;
+import com.syuto.bytes.utils.impl.client.ChatUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;

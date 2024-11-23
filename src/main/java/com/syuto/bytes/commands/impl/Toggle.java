@@ -3,7 +3,7 @@ package com.syuto.bytes.commands.impl;
 import com.syuto.bytes.commands.Command;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.ModuleManager;
-import com.syuto.bytes.utils.impl.ChatUtils;
+import com.syuto.bytes.utils.impl.client.ChatUtils;
 import net.minecraft.util.Formatting;
 
 public class Toggle extends Command {

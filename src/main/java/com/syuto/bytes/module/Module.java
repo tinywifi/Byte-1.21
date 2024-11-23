@@ -3,7 +3,7 @@ package com.syuto.bytes.module;
 import com.syuto.bytes.Byte;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.setting.api.SettingHolder;
-import com.syuto.bytes.utils.impl.ChatUtils;
+import com.syuto.bytes.utils.impl.client.ChatUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

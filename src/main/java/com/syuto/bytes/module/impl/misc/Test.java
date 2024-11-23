@@ -6,19 +6,16 @@ import com.syuto.bytes.eventbus.impl.PreUpdateEvent;
 import com.syuto.bytes.eventbus.impl.RenderTickEvent;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
-import com.syuto.bytes.utils.impl.ChatUtils;
 import com.syuto.bytes.utils.impl.rotation.RotationUtils;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import org.joml.Matrix4f;
 
 import java.awt.*;
-import java.util.Arrays;
 
 import static com.syuto.bytes.Byte.mc;
 

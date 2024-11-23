@@ -4,7 +4,7 @@ import com.syuto.bytes.commands.impl.Bind;
 import com.syuto.bytes.commands.impl.Toggle;
 import com.syuto.bytes.eventbus.EventHandler;
 import com.syuto.bytes.eventbus.impl.ChatEvent;
-import com.syuto.bytes.utils.impl.ChatUtils;
+import com.syuto.bytes.utils.impl.client.ChatUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

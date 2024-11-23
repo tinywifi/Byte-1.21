@@ -3,13 +3,9 @@ package com.syuto.bytes.mixin;
 
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.impl.misc.Test;
-import com.syuto.bytes.module.impl.player.FastPlace;
-import com.syuto.bytes.utils.impl.ChatUtils;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
