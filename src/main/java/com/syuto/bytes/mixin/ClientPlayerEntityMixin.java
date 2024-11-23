@@ -1,9 +1,13 @@
 package com.syuto.bytes.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.authlib.GameProfile;
 import com.syuto.bytes.Byte;
 import com.syuto.bytes.eventbus.impl.PreMotionEvent;
 import com.syuto.bytes.eventbus.impl.PreUpdateEvent;
+import com.syuto.bytes.eventbus.impl.SlowDownEvent;
+import com.syuto.bytes.module.ModuleManager;
+import com.syuto.bytes.module.impl.movement.NoSlow;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -22,6 +26,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Iterator;
 import java.util.List;
@@ -162,5 +167,30 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
             this.autoJumpEnabled = (Boolean)this.client.options.getAutoJump().getValue();
         }
     }
+
+
+    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
+    private boolean noSlow(boolean isUsingItem) {
+        SlowDownEvent event = new SlowDownEvent(SlowDownEvent.Mode.Item);
+
+        Byte.INSTANCE.eventBus.post(event);
+
+        NoSlow noslow = ModuleManager.getModule(NoSlow.class);
+
+        if (noslow != null) {
+            if (noslow.isEnabled() && event.isCanceled()) {
+                return false;
+            }
+        }
+
+        return isUsingItem;
+    }
+
+
+    /*
+    private boolean canStartSprinting() {
+        return !this.isSprinting() && this.isWalking() && this.canSprint() && !this.isUsingItem() && !this.hasStatusEffect(StatusEffects.BLINDNESS) && (!this.hasVehicle() || this.canVehicleSprint(this.getVehicle())) && !this.isGliding();
+    }
+     */
 
 }

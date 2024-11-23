@@ -8,11 +8,12 @@
   "client": [
     "ChatMixin",
     "ClientPlayerEntityMixin",
+    "ItemRendererMixin",
     "KeyboardMixin",
     "MinecraftClientMixin",
     "PlayerEntityRendererMixin",
     "RenderMixin",
     "RenderWorldMixin",
-    "ItemRendererMixin"
+    "EntityMixin"
   ]
 }

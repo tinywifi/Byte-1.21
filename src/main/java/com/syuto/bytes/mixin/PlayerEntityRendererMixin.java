@@ -23,7 +23,7 @@ public class PlayerEntityRendererMixin {
     private void updateRenderStateRotations(AbstractClientPlayerEntity player, PlayerEntityRenderState state, float f, CallbackInfo info) {
         final Test test = ModuleManager.getModule(Test.class);
         if (test != null && Test.rots != null && test.isEnabled() && player == mc.player) {
-            float tickDelta = mc.getRenderTickCounter().getTickDelta(false);
+            float tickDelta = mc.getRenderTickCounter().getTickDelta(true);
             state.bodyYaw = MathHelper.lerpAngleDegrees(f, lastBodyYaw, Test.rots[0]);
             state.yawDegrees = MathHelper.wrapDegrees(state.bodyYaw - lastBodyYaw);
             state.pitch = MathHelper.lerp(f, lastPitch, Test.rots[1]);

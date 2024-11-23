@@ -11,6 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static com.syuto.bytes.Byte.mc;
+
 
 @Mixin(InGameHud.class)
 public abstract class RenderMixin {
@@ -21,14 +23,14 @@ public abstract class RenderMixin {
 
     @Inject(at = @At("HEAD"), method = "renderMainHud")
     void renderTick(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        RenderTickEvent e = new RenderTickEvent(tickCounter.getTickDelta(false));
+        RenderTickEvent e = new RenderTickEvent(tickCounter.getTickDelta(true), context);
         Byte.INSTANCE.eventBus.post(e);
 
     }
 
     @Inject(at = @At("HEAD"), method = "renderHeldItemTooltip")
     void renderTicker(DrawContext context, CallbackInfo ci) {
-        RenderTickEvent e = new RenderTickEvent(getTicks());
+        RenderTickEvent e = new RenderTickEvent(mc.getRenderTickCounter().getTickDelta(true), context);
         Byte.INSTANCE.eventBus.post(e);
     }
 }

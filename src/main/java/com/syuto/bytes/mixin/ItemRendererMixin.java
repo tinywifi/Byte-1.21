@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 
 @Mixin(HeldItemRenderer.class)
 public abstract class ItemRendererMixin {
-    @Shadow protected abstract void renderArmHoldingItem(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, float equipProgress, float swingProgress, Arm arm);
+    /*@Shadow protected abstract void renderArmHoldingItem(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, float equipProgress, float swingProgress, Arm arm);
 
     @Shadow private ItemStack offHand;
 
@@ -44,10 +44,6 @@ public abstract class ItemRendererMixin {
 
     @Shadow protected abstract void applyBrushTransformation(MatrixStack matrices, float tickDelta, Arm arm, ItemStack stack, PlayerEntity player, float equipProgress);
 
-    /**
-     * @author
-     * @reason
-     */
     @Overwrite
     private void renderFirstPersonItem(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
         if (!player.isUsingSpyglass()) {
@@ -128,7 +124,7 @@ public abstract class ItemRendererMixin {
                             case BLOCK:
 
 
-                                /*matrices.translate(0,0.1,0);
+                                matrices.translate(0,0.1,0);
                                 matrices.translate(0.56F, -0.52F, -0.72F); //chat gpt
                                 matrices.translate(0.0F, -equipProgress * 0.6F, 0.0F);
                                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(45.0F));
@@ -142,7 +138,7 @@ public abstract class ItemRendererMixin {
                                 matrices.translate(-0.5F, 0.2F, 0.0F);
                                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(30.0F));
                                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-80.0F));
-                                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(60.0F));*/
+                                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(60.0F));
 
 
                                 this.applyEquipOffset(matrices, arm, equipProgress);
@@ -219,5 +215,5 @@ public abstract class ItemRendererMixin {
 
             matrices.pop();
         }
-    }
+    }*/
 }

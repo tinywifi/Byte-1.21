@@ -1,75 +1,132 @@
 package com.syuto.bytes.utils.impl.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import com.syuto.bytes.eventbus.impl.RenderWorldEvent;
+import net.minecraft.client.gl.ShaderProgramKeys;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.RotationAxis;
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
+
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.syuto.bytes.Byte.mc;
 
 public class RenderUtils {
+    private static final Color black = Color.black;
+    private static final Color gray = Color.darkGray;
+    private static final Color green = Color.green;
+    private static final Color yellow = Color.yellow;
+    private static final Color red = Color.red;
+    private static final Color orange = Color.orange;
+    private static final Color white = Color.white;
 
-    public static void renderEntityBox(Entity e, MatrixStack matrices) {
-        float outlineThickness = 1.0f;
-        double expand = 1000;
-        int color = 0;
+    private static final Map<Entity, AnimationState> animationStatesMap = new HashMap<>();
 
-        if (e instanceof LivingEntity) {
+    public static void renderHealth(Entity e, RenderWorldEvent event, float currentHealth, float maxHealth, float targetHealthRatio, float delta) {
+        AnimationState animationState = animationStatesMap.getOrDefault(e, new AnimationState(targetHealthRatio, 0));
+        animationStatesMap.put(e, animationState);
+        if (animationState.targetHealthRatio != targetHealthRatio) {
+            animationState.startHealthRatio = animationState.displayedHealthRatio;
+            animationState.targetHealthRatio = targetHealthRatio;
+            animationState.progress = 0;
+        }
 
-            double x = e.lastRenderX + (e.getX() - e.lastRenderX) * mc.getRenderTickCounter().getTickDelta(false) - mc.gameRenderer.getCamera().getPos().x;
-            double y = e.lastRenderY + (e.getY() - e.lastRenderY) *  mc.getRenderTickCounter().getTickDelta(false) - mc.gameRenderer.getCamera().getPos().y;
-            double z = e.lastRenderZ + (e.getZ() - e.lastRenderZ) *  mc.getRenderTickCounter().getTickDelta(false) - mc.gameRenderer.getCamera().getPos().z;
+        animationState.progress = Math.min(animationState.progress + 0.005, 1);
 
-            float d = (float) expand / 40.0F;
+        double easedProgress = easeOutElastic(animationState.progress);
+        animationState.displayedHealthRatio = animationState.startHealthRatio
+                + (animationState.targetHealthRatio - animationState.startHealthRatio) * easedProgress;
 
-            if (e instanceof PlayerEntity) {
-                color = 0xFF0000; // Red
-            } else {
-                color = 0xFFFFFF; // White
-            }
+        int barHeight = (int) (74.0D * animationState.displayedHealthRatio);
+        Color healthColor = animationState.displayedHealthRatio < 0.3D ? red :
+                (animationState.displayedHealthRatio < 0.5D ? orange :
+                        (animationState.displayedHealthRatio < 0.7D ? yellow : green));
 
-            matrices.push();
-            matrices.translate(x, y - 0.2D, z);
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-mc.gameRenderer.getCamera().getYaw()));
-            matrices.scale(0.03F + d, 0.03F + d, 0.03F + d);
+        float x = (float) (e.lastRenderX + (e.getX() - e.lastRenderX) * delta - mc.gameRenderer.getCamera().getPos().x);
+        float y = (float) (e.lastRenderY + (e.getY() - e.lastRenderY) * delta - mc.gameRenderer.getCamera().getPos().y);
+        float z = (float) (e.lastRenderZ + (e.getZ() - e.lastRenderZ) * delta - mc.gameRenderer.getCamera().getPos().z);
 
-            RenderSystem.disableDepthTest();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            //RenderSystem.setShader();
+        BufferBuilder bufferBuilder = getBufferBuilder(event.matrixStack, VertexFormat.DrawMode.QUADS);
 
-            // Draw the lines of the box
-            Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.LINES, VertexFormats.POSITION_COLOR);
+        preRender();
 
+        MatrixStack matrixStack = event.matrixStack;
 
-            drawLine(buffer, -20, 0, 0, 21, 0, 0, color);
-            drawLine(buffer, -20, 75, 0, 21, 75, 0, color);
-            drawLine(buffer, -20, 0, 0, -20, 75, 0, color);
-            drawLine(buffer, 21, 0, 0, 21, 75, 0, color);
-            tessellator.clear();
+        matrixStack.translate(x, y - 0.2D, z);
+        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-mc.getCameraEntity().getYaw()));
+        matrixStack.scale(0.03F, 0.03F, 0.03F);
 
-            RenderSystem.enableDepthTest();
-            RenderSystem.disableBlend();
+        int barX = 21;
+        int barWidth = 4;
+        int fullBarHeight = 75;
 
-            matrices.pop();
+        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
+
+        bufferBuilder.vertex(matrix, barX, -1, 0).color(black.getRGB());
+        bufferBuilder.vertex(matrix, barX + barWidth, -1, 0).color(black.getRGB());
+        bufferBuilder.vertex(matrix, barX + barWidth, fullBarHeight, 0).color(black.getRGB());
+        bufferBuilder.vertex(matrix, barX, fullBarHeight, 0).color(black.getRGB());
+
+        bufferBuilder.vertex(matrix, barX + 1, (float) barHeight, 0).color(gray.getRGB());
+        bufferBuilder.vertex(matrix, barX + barWidth - 1, (float) barHeight, 0).color(gray.getRGB());
+        bufferBuilder.vertex(matrix, barX + barWidth - 1, fullBarHeight - 1, 0).color(gray.getRGB());
+        bufferBuilder.vertex(matrix, barX + 1, fullBarHeight - 1, 0).color(gray.getRGB());
+
+        bufferBuilder.vertex(matrix, barX + 1, 0, 0).color(healthColor.getRGB());
+        bufferBuilder.vertex(matrix, barX + barWidth - 1, 0, 0).color(healthColor.getRGB());
+        bufferBuilder.vertex(matrix, barX + barWidth - 1, (float) barHeight, 0).color(healthColor.getRGB());
+        bufferBuilder.vertex(matrix, barX + 1, (float) barHeight, 0).color(healthColor.getRGB());
+        postRender(bufferBuilder, event.matrixStack);
+    }
+
+    private static double easeOutElastic(double x) {
+        return Math.sin((x * Math.PI) / 2);
+    }
+
+    private static class AnimationState {
+        double startHealthRatio;
+        double targetHealthRatio;
+        double displayedHealthRatio;
+        double progress;
+
+        AnimationState(float initialRatio, float progress) {
+            this.startHealthRatio = initialRatio;
+            this.targetHealthRatio = initialRatio;
+            this.displayedHealthRatio = initialRatio;
+            this.progress = progress;
         }
     }
 
-    private static void drawLine(BufferBuilder buffer, double x1, double y1, double z1, double x2, double y2, double z2, int color) {
-        float a = (color >> 24 & 255) / 255.0F;
-        float r = (color >> 16 & 255) / 255.0F;
-        float g = (color >> 8 & 255) / 255.0F;
-        float b = (color & 255) / 255.0F;
 
-        buffer.vertex((float) x1, (float) y1, (float) z1).color(r, g, b, a);
-        buffer.vertex((float) x2, (float) y2, (float) z2).color(r, g, b, a);
+    public static void preRender() {
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glDisable(GL11.GL_CULL_FACE);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+    }
+
+    public static BufferBuilder getBufferBuilder(MatrixStack matrixStack, VertexFormat.DrawMode drawMode) {
+        matrixStack.push();
+
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
+        Tessellator tessellator = RenderSystem.renderThreadTesselator();
+        return tessellator.begin(drawMode, VertexFormats.POSITION_COLOR);
+    }
+
+    public static void postRender(BufferBuilder bufferBuilder, MatrixStack matrixStack) {
+        matrixStack.pop();
+
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+
+        RenderSystem.setShaderColor(1,1,1,1);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
     }
 
 }
