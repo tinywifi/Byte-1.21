@@ -12,10 +12,10 @@ import org.slf4j.LoggerFactory;
 public class Byte implements ModInitializer {
 
 	public static final String MOD_ID = "byte";
-	public static final String NAME = "Byte", VERSION = "1.0.0"; // https://semver.org
+	public static final String NAME = "Byte", VERSION = "1.0.0";
 	public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
 
-	public static Byte INSTANCE = new Byte();
+	public static Byte INSTANCE;
 	public EventBus eventBus;
 	public static MinecraftClient mc = MinecraftClient.getInstance();
 	public CommandManager commandManager;
@@ -25,13 +25,22 @@ public class Byte implements ModInitializer {
 		eventBus = new EventBus();
 		commandManager = new CommandManager();
 		handlers = new Handlers();
+
+		registerEvents();
 	}
 
 	@Override
 	public void onInitialize() {
 		final long time = System.currentTimeMillis();
 		ModuleManager.registerModules();
+		LOGGER.info("Initialized {} in {}ms.", NAME, System.currentTimeMillis() - time);
+	}
+
+
+	public void registerEvents() {
 		eventBus.register(handlers);
-        LOGGER.info("Initialized {} in {}ms.", NAME, System.currentTimeMillis() - time);
+		eventBus.register(commandManager);
+
+		INSTANCE = this;
 	}
 }

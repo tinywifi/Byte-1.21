@@ -39,7 +39,6 @@ public abstract class ChatMixin extends ClientCommonNetworkHandler {
     public void sendChatMessage(String content) {
         ChatEvent e = new ChatEvent(content);
         Byte.INSTANCE.eventBus.post(e);
-        Byte.INSTANCE.commandManager.onChat(e);
         if (e.isCanceled()) return;
 
         System.out.println(content + " " + e.isCanceled());
