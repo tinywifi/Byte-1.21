@@ -27,9 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 
 @Mixin(ClientPlayerEntity.class)
-public abstract class EntityMixin extends AbstractClientPlayerEntity {
+public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity {
 
-    public EntityMixin(ClientWorld world, GameProfile profile) {
+    public ClientPlayerEntityMixin(ClientWorld world, GameProfile profile) {
         super(world, profile);
     }
 
