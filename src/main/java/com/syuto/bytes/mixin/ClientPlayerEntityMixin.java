@@ -27,6 +27,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Iterator;
 import java.util.List;
@@ -66,48 +69,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 
     @Shadow @Final protected MinecraftClient client;
 
-    @Shadow @Final private Cooldown itemDropCooldown;
 
-    @Shadow protected abstract void sendSneakingPacket();
-
-    @Shadow private PlayerInput lastPlayerInput;
-
-    @Shadow public Input input;
-
-    @Shadow @Final private List<ClientPlayerTickable> tickables;
-
-    /**
-     * @author
-     * @reason
-     */
-    @Overwrite
-    public void tick() {
-        this.itemDropCooldown.tick();
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;tick()V"), method = "tick")
+    public void onPreUpdate(CallbackInfo ci) {
         Byte.INSTANCE.eventBus.post(new PreUpdateEvent());
-        super.tick();
-        this.sendSneakingPacket();
-        if (!this.lastPlayerInput.equals(this.input.playerInput)) {
-            this.networkHandler.sendPacket(new PlayerInputC2SPacket(this.input.playerInput));
-            this.lastPlayerInput = this.input.playerInput;
-        }
-
-        if (this.hasVehicle()) {
-            this.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(this.getYaw(), this.getPitch(), this.isOnGround(), this.horizontalCollision));
-            Entity entity = this.getRootVehicle();
-            if (entity != this && entity.isLogicalSideForUpdatingMovement()) {
-                this.networkHandler.sendPacket(new VehicleMoveC2SPacket(entity));
-                this.sendSprintingPacket();
-            }
-        } else {
-            this.sendMovementPackets();
-        }
-
-        Iterator var3 = this.tickables.iterator();
-
-        while(var3.hasNext()) {
-            ClientPlayerTickable clientPlayerTickable = (ClientPlayerTickable)var3.next();
-            clientPlayerTickable.tick();
-        }
     }
 
     /**
@@ -169,8 +134,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
     }
 
 
-    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
-    private boolean noSlow(boolean isUsingItem) {
+    @Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
+    private boolean noSlow(ClientPlayerEntity instance) {
         SlowDownEvent event = new SlowDownEvent(SlowDownEvent.Mode.Item);
 
         Byte.INSTANCE.eventBus.post(event);
@@ -182,10 +147,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
                 return false;
             }
         }
-
-        return isUsingItem;
+        return instance.isUsingItem();
     }
-
 
     /*
     private boolean canStartSprinting() {

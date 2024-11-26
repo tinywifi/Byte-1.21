@@ -7,6 +7,8 @@ import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.WitchEntity;
+import net.minecraft.entity.passive.FishEntity;
 import net.minecraft.entity.player.PlayerEntity;
 
 
@@ -20,11 +22,14 @@ public class PlayerESP extends Module {
     @EventHandler
     public void onRenderWorld(RenderWorldEvent event) {
         for (Entity e : mc.world.getEntities()) {
-            if (e instanceof PlayerEntity && e.isAlive() && e != mc.player) {
-                float delta = mc.getRenderTickCounter().getTickDelta(true);
-                LivingEntity en = (LivingEntity) e;
+            if (e instanceof PlayerEntity) {
+                if (e.isAlive() && e != mc.player) {
+                    float delta = mc.getRenderTickCounter().getTickDelta(true);
+                    LivingEntity en = (LivingEntity) e;
 
-                RenderUtils.renderHealth(en, event, en.getHealth(), en.getMaxHealth(), (en.getHealth() / en.getMaxHealth()), delta);
+                    RenderUtils.renderHealth(en, event, en.getHealth(), en.getMaxHealth(), (en.getHealth() / en.getMaxHealth()), delta);
+                   //RenderUtils.renderBox(e,event,delta); 3d esp
+                }
             }
         }
     }

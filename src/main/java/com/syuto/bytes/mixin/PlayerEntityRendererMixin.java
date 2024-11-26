@@ -2,6 +2,7 @@ package com.syuto.bytes.mixin;
 
 
 import com.syuto.bytes.module.ModuleManager;
+import com.syuto.bytes.module.impl.combat.Killaura;
 import com.syuto.bytes.module.impl.misc.Test;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
@@ -20,23 +21,19 @@ public class PlayerEntityRendererMixin {
     private float lastPitch;
 
     @Inject(method = "updateRenderState(Lnet/minecraft/client/network/AbstractClientPlayerEntity;Lnet/minecraft/client/render/entity/state/PlayerEntityRenderState;F)V", at = @At("RETURN"))
-    private void updateRenderStateRotations(AbstractClientPlayerEntity player, PlayerEntityRenderState state, float f, CallbackInfo info) {
-        final Test test = ModuleManager.getModule(Test.class);
-        if (test != null && Test.rots != null && test.isEnabled() && player == mc.player) {
-            float tickDelta = mc.getRenderTickCounter().getTickDelta(true);
-            state.bodyYaw = MathHelper.lerpAngleDegrees(f, lastBodyYaw, Test.rots[0]);
-            state.yawDegrees = MathHelper.wrapDegrees(state.bodyYaw - lastBodyYaw);
-            state.pitch = MathHelper.lerp(f, lastPitch, Test.rots[1]);
-            System.out.println("hi " + state.pitch + " " + state.bodyYaw);
+    private void updateRenderStateRotations(AbstractClientPlayerEntity player, PlayerEntityRenderState state, float tickDelta, CallbackInfo info) {
+        final Killaura ka = ModuleManager.getModule(Killaura.class);
+        if (ka != null && ka.rots != null && ka.isEnabled() && player == mc.player) {
+            float yaw = Killaura.rots[0];
+            float pitch = Killaura.rots[1];
+            state.bodyYaw = MathHelper.lerp(tickDelta, lastBodyYaw, yaw);
+            state.yawDegrees = yaw;
+            state.pitch = MathHelper.lerp(tickDelta, lastPitch, pitch);
+
+
             lastBodyYaw = state.bodyYaw;
             lastPitch = state.pitch;
-        }
-    }
 
-    private static float interpolateRotation(float start, float end, float fraction) {
-        float delta = end - start;
-        while (delta < -180.0F) delta += 360.0F;
-        while (delta >= 180.0F) delta -= 360.0F;
-        return start + fraction * delta;
+        }
     }
 }
