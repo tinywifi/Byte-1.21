@@ -21,12 +21,16 @@ public abstract class Module extends SettingHolder {
     private boolean enabled;
     private int key;
 
+    // New field for suffix
+    private String suffix = "";
+
     protected void onEnable() {}
     protected void onDisable() {}
 
     public final void toggle() {
         setEnabled(!enabled);
     }
+
     public final void setEnabled(boolean enabled) {
         if (this.enabled != enabled) {
             this.enabled = enabled;
@@ -44,7 +48,10 @@ public abstract class Module extends SettingHolder {
 
     @NotNull
     public String getSuffix() {
-        return "";
+        return suffix;
     }
 
+    public void setSuffix(@NotNull String suffix) {
+        this.suffix = suffix;
+    }
 }

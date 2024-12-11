@@ -12,6 +12,8 @@ import net.minecraft.entity.passive.FishEntity;
 import net.minecraft.entity.player.PlayerEntity;
 
 
+import java.awt.*;
+
 import static com.syuto.bytes.Byte.mc;
 
 public class PlayerESP extends Module {
@@ -27,8 +29,9 @@ public class PlayerESP extends Module {
                     float delta = mc.getRenderTickCounter().getTickDelta(true);
                     LivingEntity en = (LivingEntity) e;
 
+                    //RenderUtils.drawCircle(en, event, 0.5f, Color.red.getRGB(), delta);
                     RenderUtils.renderHealth(en, event, en.getHealth(), en.getMaxHealth(), (en.getHealth() / en.getMaxHealth()), delta);
-                   //RenderUtils.renderBox(e,event,delta); 3d esp
+                    //RenderUtils.renderBox(e,event,delta); //3d esp
                 }
             }
         }

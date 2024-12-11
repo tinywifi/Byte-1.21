@@ -15,6 +15,7 @@
     "PlayerEntityRendererMixin",
     "RenderMixin",
     "RenderWorldMixin",
-    "SendPacketMixin"
+    "SendPacketMixin",
+    "PacketReceivedMixin"
   ]
 }

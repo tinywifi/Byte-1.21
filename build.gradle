@@ -27,19 +27,22 @@ dependencies {
 	compileOnly("org.projectlombok:lombok:1.18.34")
 	annotationProcessor("org.projectlombok:lombok:1.18.34")
 
-	implementation 'org.reflections:reflections:0.10.2'
-	include 'org.reflections:reflections:0.10.2'
-	implementation "org.slf4j:slf4j-api:1.7.32"
-	include "org.slf4j:slf4j-api:1.7.32"
-	implementation 'org.javassist:javassist:3.28.0-GA'
-	include 'org.javassist:javassist:3.28.0-GA'
+	include implementation('org.reflections:reflections:0.10.2')
+	include implementation("org.slf4j:slf4j-api:1.7.32")
+	include implementation('org.javassist:javassist:3.28.0-GA')
+	include implementation('com.github.oshi:oshi-core:6.4.5')
 
-	implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}")
-	include("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}")
+	//implementation("org.lwjgl:lwjgl:${project.minecraft_lwjgl_version}")
+	//implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}")
+	include implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}")
 	["windows", "linux"].forEach {
-		implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}:natives-${it}")
-		include("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}:natives-${it}")
+		include implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}:natives-${it}")
+		//include("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}:natives-${it}")
 	}
+
+	include implementation("io.github.spair:imgui-java-binding:${project.imgui_version}")
+	include implementation("io.github.spair:imgui-java-lwjgl3:${project.imgui_version}")
+	include implementation("io.github.spair:imgui-java-natives-windows:${project.imgui_version}")
 }
 
 processResources {

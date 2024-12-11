@@ -6,6 +6,7 @@ import com.syuto.bytes.eventbus.Handlers;
 import com.syuto.bytes.module.ModuleManager;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -13,6 +13,8 @@ import net.minecraft.client.input.Input;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.entity.state.EntityRenderState;
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.client.util.ClientPlayerTickable;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -81,19 +83,22 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
      */
     @Overwrite
     private void sendMovementPackets() {
+        PreMotionEvent event = new PreMotionEvent(
+                this.getX(),
+                this.getBoundingBox().minY,
+                this.getZ(),
+                this.getYaw(),
+                this.getPitch(),
+                this.lastYaw,
+                this.lastPitch,
+                this.isOnGround(),
+                this.isSneaking(),
+                this.isSprinting(),
+                this.horizontalCollision
+        );
+
         this.sendSprintingPacket();
         if (this.isCamera()) {
-            PreMotionEvent event = new PreMotionEvent(
-                    this.getX(),
-                    this.getBoundingBox().minY,
-                    this.getZ(),
-                    this.getYaw(),
-                    this.getPitch(),
-                    this.isOnGround(),
-                    this.isSneaking(),
-                    this.isSprinting(),
-                    this.horizontalCollision
-            );
 
             Byte.INSTANCE.eventBus.post(event);
 
