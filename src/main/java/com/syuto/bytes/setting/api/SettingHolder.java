@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class SettingHolder {
-    public final List<Setting<?>> settings = new ArrayList<>();
+    public final List<Setting<?>> values = new ArrayList<>();
     @Nullable
     @SuppressWarnings("unchecked")
     public <S extends Setting<?>> S getSetting(final String name) {
-        return (S) this.settings.stream()
+        return (S) this.values.stream()
                 .filter(s -> s.getName().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);

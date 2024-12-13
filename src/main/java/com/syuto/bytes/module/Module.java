@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -16,10 +17,11 @@ import org.jetbrains.annotations.NotNull;
 @RequiredArgsConstructor
 public abstract class Module extends SettingHolder {
 
-    private final String name, description;
-    private final Category category;
-    private boolean enabled;
-    private int key;
+    protected final MinecraftClient mc = MinecraftClient.getInstance();
+    public final String name, description;
+    public final Category category;
+    public boolean enabled;
+    public int key;
 
     // New field for suffix
     private String suffix = "";
