@@ -12,10 +12,11 @@
     "ItemRendererMixin",
     "KeyboardMixin",
     "MinecraftClientMixin",
+    "PacketReceivedMixin",
     "PlayerEntityRendererMixin",
     "RenderMixin",
     "RenderWorldMixin",
     "SendPacketMixin",
-    "PacketReceivedMixin"
+    "PlayerEntityMixin"
   ]
 }

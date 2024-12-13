@@ -1,6 +1,7 @@
 package com.syuto.bytes.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.authlib.GameProfile;
 import com.syuto.bytes.Byte;
 import com.syuto.bytes.eventbus.impl.PreMotionEvent;
@@ -72,6 +73,16 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
     @Shadow @Final protected MinecraftClient client;
 
 
+    @Shadow protected abstract boolean isBlind();
+
+    @Shadow public abstract boolean shouldSlowDown();
+
+    @Shadow protected abstract boolean isRidingCamel();
+
+    @Shadow public abstract boolean isUsingItem();
+
+    @Shadow public abstract boolean isSubmergedInWater();
+
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;tick()V"), method = "tick")
     public void onPreUpdate(CallbackInfo ci) {
         Byte.INSTANCE.eventBus.post(new PreUpdateEvent());
@@ -139,6 +150,18 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
     }
 
 
+    /**
+     * @author
+     * @reason
+     */
+
+    @Overwrite
+    private boolean shouldStopSprinting() {
+        NoSlow noslow = ModuleManager.getModule(NoSlow.class);
+        return this.isGliding() || this.isBlind() || this.shouldSlowDown() || this.hasVehicle() && !this.isRidingCamel() || (noslow != null && !noslow.isEnabled() && this.isUsingItem() && !this.hasVehicle() && !this.isSubmergedInWater());
+    }
+
+
     @Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
     private boolean noSlow(ClientPlayerEntity instance) {
         SlowDownEvent event = new SlowDownEvent(SlowDownEvent.Mode.Item);
@@ -147,7 +170,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 
         NoSlow noslow = ModuleManager.getModule(NoSlow.class);
 
-        if (noslow != null) {
+        if (noslow != null ) {
             if (noslow.isEnabled() && event.isCanceled()) {
                 return false;
             }
@@ -155,10 +178,5 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
         return instance.isUsingItem();
     }
 
-    /*
-    private boolean canStartSprinting() {
-        return !this.isSprinting() && this.isWalking() && this.canSprint() && !this.isUsingItem() && !this.hasStatusEffect(StatusEffects.BLINDNESS) && (!this.hasVehicle() || this.canVehicleSprint(this.getVehicle())) && !this.isGliding();
-    }
-     */
 
 }
