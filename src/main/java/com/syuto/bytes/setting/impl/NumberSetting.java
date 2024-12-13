@@ -9,7 +9,7 @@ import java.util.function.BooleanSupplier;
 @Getter
 public class NumberSetting extends Setting<Number> {
 
-    private final Number minValue, maxValue, increment;
+    public final Number minValue, maxValue, increment;
 
     public NumberSetting(String name, SettingHolder parent, BooleanSupplier visibility, Number defaultValue, Number minValue, Number maxValue, Number increment) {
         super(name, parent, visibility, defaultValue);

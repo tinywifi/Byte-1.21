@@ -10,7 +10,6 @@ import com.syuto.bytes.setting.impl.ColorSetting;
 import com.syuto.bytes.setting.impl.ModeSetting;
 import com.syuto.bytes.setting.impl.NumberSetting;
 import imgui.ImGui;
-import imgui.ImVec4;
 import imgui.flag.ImGuiDataType;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.type.ImDouble;
@@ -21,9 +20,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
 import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static com.syuto.bytes.Byte.mc;
 
@@ -95,7 +92,7 @@ public class GuiHandler extends Screen {
                             module.toggle();
                         }
 
-                        for (Setting<?> setting : module.settings) {
+                        for (Setting<?> setting : module.values) {
                             renderSetting(module, setting);
                         }
                     }

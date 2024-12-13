@@ -11,10 +11,10 @@ import java.util.function.BooleanSupplier;
 @Setter
 @AllArgsConstructor
 public abstract class Setting<T> {
-    protected final String name;
-    protected final SettingHolder parent;
-    protected final BooleanSupplier visibility;
-    protected T value;
+    public final String name;
+    public final SettingHolder parent;
+    public final BooleanSupplier visibility;
+    public T value;
 
     protected Setting(String name, SettingHolder parent, T defaultValue) {
         this(name, parent, () -> true, defaultValue);

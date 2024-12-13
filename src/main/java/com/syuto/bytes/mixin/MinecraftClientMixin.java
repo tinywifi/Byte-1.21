@@ -1,24 +1,17 @@
 package com.syuto.bytes.mixin;
 
-import com.google.common.collect.Lists;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.syuto.bytes.Byte;
-import com.syuto.bytes.auth.LoginGUI;
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.impl.player.FastPlace;
 import com.syuto.bytes.module.impl.render.clickgui.ImGuiImpl;
-import me.twenty48lol.util.render.DrawUtil;
+import dev.blend.util.render.DrawUtil;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.QuickPlay;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.util.Window;
 import net.minecraft.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -50,9 +43,7 @@ public abstract class MinecraftClientMixin {
             )
     )
     private void initializeNanoVG(RunArgs args, CallbackInfo ci) {
-        DrawUtil.initializeNanoVG();
-        Byte.LOGGER.info("initialize nanovg");
-
+        DrawUtil.initialize();
     }
 
     @Shadow
@@ -69,7 +60,7 @@ public abstract class MinecraftClientMixin {
         }
     }
 
-
+    // WHAT IS THIS???
     /*@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
     private void onSetScreen(Screen screen, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();

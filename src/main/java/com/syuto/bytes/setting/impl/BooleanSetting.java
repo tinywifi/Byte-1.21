@@ -12,4 +12,7 @@ public class BooleanSetting extends Setting<Boolean> {
     public BooleanSetting(String name, SettingHolder parent, Boolean defaultValue) {
         super(name, parent, defaultValue);
     }
+    public void toggle() {
+        setValue(!value);
+    }
 }

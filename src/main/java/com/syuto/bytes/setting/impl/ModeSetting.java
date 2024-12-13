@@ -12,7 +12,7 @@ import java.util.function.BooleanSupplier;
 @Getter
 public class ModeSetting extends Setting<String> {
 
-    private final List<String> modes = new ArrayList<>();
+    public final List<String> modes = new ArrayList<>();
 
     public ModeSetting(String name, SettingHolder parent, BooleanSupplier visibility, String @NotNull ... values) {
         super(name, parent, visibility, values[0]);
@@ -30,6 +30,22 @@ public class ModeSetting extends Setting<String> {
         }
     }
 
+    public void next() {
+        int index = modes.indexOf(value);
+        if (index < modes.size() - 1) {
+            setValue(modes.get(index + 1));
+        } else {
+            setValue(modes.getFirst());
+        }
+    }
+    public void previous() {
+        int index = modes.indexOf(value);
+        if (index > 0) {
+            setValue(modes.get(index - 1));
+        } else {
+            setValue(modes.getLast());
+        }
+    }
     public boolean is(final String value) {
         return this.value.equalsIgnoreCase(value);
     }

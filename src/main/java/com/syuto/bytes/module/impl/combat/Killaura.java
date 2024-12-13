@@ -14,17 +14,12 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 
-
-import java.awt.*;
-
-import static com.syuto.bytes.Byte.mc;
-
 public class Killaura extends Module {
     public NumberSetting reach = new NumberSetting("Reach",this,3.0D,3.0D,6.0D, 0.5D);
 
     public Killaura() {
         super("Killaura", "Attacks people for you", Category.COMBAT);
-        settings.add(reach);
+        values.add(reach);
         this.setSuffix("Switch");
     }
 
