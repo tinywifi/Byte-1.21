@@ -18,8 +18,7 @@ object MiscUtil: IAccessor {
     @JvmStatic
     @Throws(IOException::class)
     fun getResourceAsByteBuffer(resource: String, bufferSize: Int = 1024): ByteBuffer {
-        println("/assets/byte/$resource")
-        val source = Byte::class.java.getResourceAsStream("/assets/byte/$resource")
+        val source = MiscUtil::class.java.getResourceAsStream("/assets/byte/$resource")
         checkNotNull(source)
         val rbc: ReadableByteChannel = Channels.newChannel(source)
         var buffer = BufferUtils.createByteBuffer(bufferSize)
