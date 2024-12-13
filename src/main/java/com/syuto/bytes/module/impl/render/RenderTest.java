@@ -5,6 +5,8 @@ import com.syuto.bytes.eventbus.impl.RenderTickEvent;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
+import net.minecraft.client.util.math.MatrixStack;
+import org.joml.Matrix4f;
 
 import java.awt.*;
 
@@ -19,22 +21,20 @@ public class RenderTest extends Module {
 
     @EventHandler
     void onRenderTick(RenderTickEvent event) {
+        MatrixStack matrices = event.context.getMatrices();
+        Matrix4f matrix = matrices.peek().getPositionMatrix();
+
+
         int width = mc.getWindow().getScaledWidth();
         int height = mc.getWindow().getScaledHeight();
 
-        int boxWidth = 200;
-        int boxHeight = 200;
+
+        float x = (width / 2.0f);
+        float y = (height / 2.0f);
+
+        RenderUtils.drawCircle(event, x, y,50,red.getRGB());
+        //RenderUtils.drawTextWithBackground(matrix, "Hello", x, y, red.getRGB(), event);
 
 
-        float left = (width / 2.0f) - (boxWidth / 2.0f);
-        float top = (height / 2.0f) - (boxHeight / 2.0f);
-        float right = left + boxWidth;
-        float bottom = top + boxHeight;
-
-        float centerX = width / 2.0f;
-        float centerY = height / 2.0f;
-
-        //RenderUtils.drawCircle(event, centerX, centerY, 50, red.getRGB());
-        //RenderUtils.drawRect(event, left, top, right, bottom, red.getRGB());
     }
 }

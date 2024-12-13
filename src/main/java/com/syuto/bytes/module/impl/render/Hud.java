@@ -6,6 +6,7 @@ import com.syuto.bytes.eventbus.impl.RenderTickEvent;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.api.Category;
+import com.syuto.bytes.utils.impl.render.RenderUtils;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Formatting;
@@ -51,12 +52,12 @@ public class Hud extends Module {
         MatrixStack matrices = event.context.getMatrices();
         Matrix4f matrix = matrices.peek().getPositionMatrix();
         int screenWidth = mc.getWindow().getScaledWidth();
-        int yPosition = 10;
+        int yPosition = 1;
 
         mc.textRenderer.draw(
                 "</byte>",
                 5,
-                yPosition,
+                5,
                 cyan.getRGB(),
                 true,
                 matrix,
@@ -74,9 +75,9 @@ public class Hud extends Module {
                 String displayText = suffix.isEmpty() ? moduleName : moduleName + Formatting.GRAY + " " + suffix;
 
                 int textWidth = mc.textRenderer.getWidth(displayText);
-                int xPosition = screenWidth - textWidth - 5;
+                int xPosition = screenWidth - textWidth - 2;
 
-                mc.textRenderer.draw(
+                /*mc.textRenderer.draw(
                         displayText,
                         xPosition,
                         yPosition,
@@ -87,8 +88,18 @@ public class Hud extends Module {
                         TextRenderer.TextLayerType.NORMAL,
                         0,
                         255
+                );*/
+
+                RenderUtils.drawTextWithBackground(
+                        matrix,
+                        displayText,
+                        xPosition,
+                        yPosition,
+                        cyan.getRGB(),
+                        event
+
                 );
-                yPosition += mc.textRenderer.fontHeight + 2;
+                yPosition += mc.textRenderer.fontHeight + 3;
             }
         }
     }

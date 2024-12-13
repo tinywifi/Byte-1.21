@@ -4,13 +4,16 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.syuto.bytes.eventbus.impl.RenderTickEvent;
 import com.syuto.bytes.eventbus.impl.RenderWorldEvent;
 import com.syuto.bytes.utils.impl.client.ChatUtils;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.debug.DebugRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.datafixer.fix.ChunkPalettedStorageFix;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
@@ -233,6 +236,35 @@ public class RenderUtils {
 
 
 
+    public static void drawTextWithBackground(Matrix4f matrix, String text, float x, float y, int color, RenderTickEvent event) {
+        int textWidth = mc.textRenderer.getWidth(text);
+        int textHeight = mc.textRenderer.fontHeight;
+
+        float padding = 1.0f;
+
+        float adjustedX = x + padding;
+        float adjustedY = y + padding;
+
+        float left = x - padding;
+        float top = y - padding;
+        float right = x + textWidth + padding * 2;
+        float bottom = y + textHeight + padding * 2;
+
+        drawRect(event, left, top, right, bottom, 0x80000000);
+
+        mc.textRenderer.draw(
+                text,
+                adjustedX,
+                adjustedY,
+                color,
+                true,
+                matrix,
+                mc.getBufferBuilders().getEntityVertexConsumers(),
+                TextRenderer.TextLayerType.NORMAL,
+                0,
+                255
+        );
+    }
 
 
     public static void drawRect(RenderTickEvent event, float left, float top, float right, float bottom, int color) {
@@ -253,9 +285,41 @@ public class RenderUtils {
         bufferBuilder.vertex(matrix, right, top,0.0f).color(f, f1, f2, f3);
         bufferBuilder.vertex(matrix, left, top,0.0f).color(f, f1, f2, f3);
 
+        postRender(bufferBuilder, matrixStack);
+    }
+
+
+    public static void drawCircle(RenderTickEvent event, float centerX, float centerY, float radius, int color) {
+        float alpha = (color >> 24 & 255) / 255.0F;
+        float red = (color >> 16 & 255) / 255.0F;
+        float green = (color >> 8 & 255) / 255.0F;
+        float blue = (color & 255) / 255.0F;
+
+        MatrixStack matrixStack = event.context.getMatrices();
+        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.DEBUG_LINE_STRIP);
+        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
+
+        preRender();
+
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
+
+        final float step = 0.05f;
+        final int segments = (int) (2 * Math.PI / step);
+        for (int i = 0; i <= segments; i++) {
+            float angle = i * step;
+            float x = centerX + MathHelper.cos(angle) * radius;
+            float y = centerY + MathHelper.sin(angle) * radius;
+            bufferBuilder.vertex(matrix, x, y, 0.0f).color(red, green, blue, alpha);
+        }
+
+
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+        GL11.glDisable(GL11.GL_BLEND);
 
         postRender(bufferBuilder, matrixStack);
     }
+
 
 
     public static int interpolateColor(int startColor, int endColor, float ratio) {
@@ -290,5 +354,4 @@ public class RenderUtils {
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
     }
-
 }
