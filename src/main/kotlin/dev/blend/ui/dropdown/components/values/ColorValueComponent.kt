@@ -44,14 +44,14 @@ class ColorValueComponent(
         if (hueSliderHeld) {
             value.hue = max(0.0, min(relativeMouseX, 1.0)).toFloat()
         }
-        val pickerSelectorColor = ColorUtil.mixColors(Color.WHITE, value.value, pickerHoldAnimation.get())
+        val pickerSelectorColor = ColorUtil.mixColors(Color.WHITE, value.getValue(), pickerHoldAnimation.get())
         val hueSelectorColor = ColorUtil.mixColors(Color.WHITE, Color.getHSBColor(value.hue, 1.0f, 1.0f), hueAnimation.get())
         with(DrawUtil) {
             save()
             intersectScissor(x, y, width, this@ColorValueComponent.height)
             drawString(value.name, x + 5.0, y + (height / 2.0), 8, ThemeHandler.getTextColor(), Alignment.CENTER_LEFT)
 
-            roundedRect(x + (width - padding), y + (height / 2.0), 20.0, height - (padding * 2.0), 2.0, value.value, Alignment.CENTER_RIGHT)
+            roundedRect(x + (width - padding), y + (height / 2.0), 20.0, height - (padding * 2.0), 2.0, value.getValue(), Alignment.CENTER_RIGHT)
             roundedRect(x + (width - padding), y + (height / 2.0), 20.0, height - (padding * 2.0), 2.0, 1.0, ThemeHandler.getContrast(), Alignment.CENTER_RIGHT)
 
             height += padding

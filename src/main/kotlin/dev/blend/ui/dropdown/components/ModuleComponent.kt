@@ -95,7 +95,7 @@ class ModuleComponent(
         if (isOver(x, y, width, initialHeight, mouseX, mouseY)) {
             if (mouseButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                 module.toggle()
-            } else {
+            } else if (module.values.isNotEmpty()) {
                 expanded = !expanded
             }
         }

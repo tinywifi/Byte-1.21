@@ -6,6 +6,8 @@ import lombok.Getter;
 
 import java.util.function.BooleanSupplier;
 
+import static java.lang.Math.*;
+
 @Getter
 public class NumberSetting extends Setting<Number> {
 
@@ -22,6 +24,12 @@ public class NumberSetting extends Setting<Number> {
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.increment = increment;
+    }
+
+    @Override
+    public void setValue(Number value) {
+        double precision = 1 / increment.doubleValue();
+        super.setValue(max(minValue.doubleValue(), min(maxValue.doubleValue(), round(value.doubleValue() * precision) / precision)));
     }
 
 }

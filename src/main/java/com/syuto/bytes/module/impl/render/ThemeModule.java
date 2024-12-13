@@ -14,7 +14,7 @@ public class ThemeModule extends Module {
     public final ModeSetting theme = new ModeSetting("Theme", this, "Dark", "Light");
 
     public ThemeModule() {
-        super("THeme", "Customize the looks of the client.", Category.RENDER);
+        super("Theme", "Customize the looks of the client.", Category.RENDER);
     }
 
     @Override

@@ -18,6 +18,7 @@ public abstract class Setting<T> {
 
     protected Setting(String name, SettingHolder parent, T defaultValue) {
         this(name, parent, () -> true, defaultValue);
+        parent.values.add(this);
     }
 
 }

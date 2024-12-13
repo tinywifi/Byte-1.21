@@ -8,7 +8,7 @@ import org.lwjgl.glfw.GLFW;
 public class OtherClickGUI extends Module {
 
     public OtherClickGUI() {
-        super("KliQGUI!", "description", Category.RENDER);
+        super("ClikGU!", "description", Category.RENDER);
         setKey(GLFW.GLFW_KEY_RIGHT_CONTROL);
     }
 

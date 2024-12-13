@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.impl.player.FastPlace;
 import com.syuto.bytes.module.impl.render.clickgui.ImGuiImpl;
+import dev.blend.ThemeHandler;
 import dev.blend.util.render.DrawUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
@@ -58,6 +59,17 @@ public abstract class MinecraftClientMixin {
         if (fastPlace != null && fastPlace.isEnabled()) {
             itemUseCooldown = fastPlace.getItemUseCooldown(itemStack);
         }
+    }
+
+    @Inject(
+            method = "render",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gl/Framebuffer;beginWrite(Z)V"
+            )
+    )
+    private void updateThemeHandler(boolean tick, CallbackInfo ci) {
+        ThemeHandler.INSTANCE.update();
     }
 
     // WHAT IS THIS???

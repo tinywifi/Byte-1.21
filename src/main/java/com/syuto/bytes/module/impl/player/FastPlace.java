@@ -12,7 +12,7 @@ public class FastPlace extends Module {
 
     public FastPlace() {
         super("FastPlace", "Modify right click timer.", Category.PLAYER);
-        values.add(delay);
+//        values.add(delay); // this isn't needed. do NOT do it.
     }
 
     public int getItemUseCooldown(ItemStack itemStack) {

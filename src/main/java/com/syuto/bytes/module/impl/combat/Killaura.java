@@ -19,8 +19,8 @@ public class Killaura extends Module {
 
     public Killaura() {
         super("Killaura", "Attacks people for you", Category.COMBAT);
-        values.add(reach);
         this.setSuffix("Switch");
+//        values.add(reach); // this isn't needed. do NOT do it.
     }
 
     private boolean rot;
