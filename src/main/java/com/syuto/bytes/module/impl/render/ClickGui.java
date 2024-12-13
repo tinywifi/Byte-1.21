@@ -14,7 +14,7 @@ import static com.syuto.bytes.Byte.mc;
 public class ClickGui extends Module {
     public ClickGui() {
         super("ClickGui", "Click gui", Category.RENDER);
-        setKey(GLFW.GLFW_KEY_RIGHT_SHIFT);
+        //setKey(GLFW.GLFW_KEY_RIGHT_SHIFT);
     }
 
     @Override
