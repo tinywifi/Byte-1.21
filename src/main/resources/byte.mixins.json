@@ -13,10 +13,11 @@
     "KeyboardMixin",
     "MinecraftClientMixin",
     "PacketReceivedMixin",
+    "PlayerEntityMixin",
     "PlayerEntityRendererMixin",
     "RenderMixin",
     "RenderWorldMixin",
     "SendPacketMixin",
-    "PlayerEntityMixin"
+    "TitleScreenMixin"
   ]
 }

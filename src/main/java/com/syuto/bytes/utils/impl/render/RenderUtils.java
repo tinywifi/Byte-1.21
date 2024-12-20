@@ -7,6 +7,7 @@ import com.syuto.bytes.utils.impl.client.ChatUtils;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.ShaderProgramKeys;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.debug.DebugRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -155,7 +156,7 @@ public class RenderUtils {
         float angleStep = (float) (2 * Math.PI / segments);
 
         MatrixStack matrixStack = event.matrixStack;
-        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.DEBUG_LINES);
+        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.QUADS);
 
         preRender();
 
@@ -289,36 +290,65 @@ public class RenderUtils {
     }
 
 
-    public static void drawCircle(RenderTickEvent event, float centerX, float centerY, float radius, int color) {
+
+    public static void drawRect(DrawContext event, float left, float top, float right, float bottom, int color) {
+        float f3 = (color >> 24 & 255) / 255.0F;
+        float f = (color >> 16 & 255) / 255.0F;
+        float f1 = (color >> 8 & 255) / 255.0F;
+        float f2 = (color & 255) / 255.0F;
+        MatrixStack matrixStack = event.getMatrices();
+
+        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.QUADS);
+
+        preRender();
+
+        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
+
+        bufferBuilder.vertex(matrix, left, bottom,0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, right, bottom,0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, right, top,0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, left, top,0.0f).color(f, f1, f2, f3);
+
+        postRender(bufferBuilder, matrixStack);
+    }
+
+
+    public static void drawCircle(DrawContext event, float centerX, float centerY, float radius, int color) {
         float alpha = (color >> 24 & 255) / 255.0F;
         float red = (color >> 16 & 255) / 255.0F;
         float green = (color >> 8 & 255) / 255.0F;
         float blue = (color & 255) / 255.0F;
 
-        MatrixStack matrixStack = event.context.getMatrices();
-        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.DEBUG_LINE_STRIP);
+        MatrixStack matrixStack = event.getMatrices();
+        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.TRIANGLE_FAN);
         Matrix4f matrix = matrixStack.peek().getPositionMatrix();
 
         preRender();
 
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
+        GL11.glEnable(GL11.GL_BLEND);
+
+        //bufferBuilder.vertex(matrix, centerX, centerY, 0.0f).color(red, green, blue, alpha);
 
         final float step = 0.05f;
         final int segments = (int) (2 * Math.PI / step);
-        for (int i = 0; i <= segments; i++) {
+
+        for (int i = 0; i < segments; i++) {
             float angle = i * step;
             float x = centerX + MathHelper.cos(angle) * radius;
             float y = centerY + MathHelper.sin(angle) * radius;
+
+            bufferBuilder.vertex(matrix, x, y, 0.0f).color(red, green, blue, alpha);
             bufferBuilder.vertex(matrix, x, y, 0.0f).color(red, green, blue, alpha);
         }
-
 
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
         GL11.glDisable(GL11.GL_BLEND);
 
         postRender(bufferBuilder, matrixStack);
     }
+
 
 
 

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class Module extends SettingHolder {
 
     protected final MinecraftClient mc = MinecraftClient.getInstance();
+    protected float delta = mc.getRenderTickCounter().getTickDelta(true);
     public final String name, description;
     public final Category category;
     public boolean enabled;
