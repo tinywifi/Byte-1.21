@@ -78,7 +78,7 @@ public class Test extends Module {
         }
 
         if (rots != null) {
-            event.yaw = rots[0];
+            event.yaw = getDirection() + 270;
             event.pitch = rots[1];
             if (facing == Direction.UP) {
                 event.yaw = rots[0];

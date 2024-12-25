@@ -2,7 +2,9 @@ package com.syuto.bytes.utils.impl.render;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
 
 import java.awt.*;
@@ -17,6 +19,8 @@ public class Snow {
     private static final Color snowflakeColor = Color.WHITE;
     private static final List<Snowflake> snowflakes = new ArrayList<>();
     private static final Random random = new Random();
+    private static Identifier imageIdentifier = Identifier.of("byte", "background/glove.png");
+
 
     private static class Snowflake {
         float x, y, size, speed;
@@ -48,7 +52,7 @@ public class Snow {
             for (int i = 0; i < 75; i++) {
                 float x = random.nextInt(width);
                 float y = random.nextInt(height);
-                float size = 2 + random.nextFloat() * 3;
+                float size = 10 + random.nextFloat() * 3;
                 float speed = 1 + random.nextFloat() * 2;
                 snowflakes.add(new Snowflake(x, y, size, speed));
             }
@@ -56,7 +60,17 @@ public class Snow {
 
         for (Snowflake snowflake : snowflakes) {
             snowflake.fall();
-            RenderUtils.drawCircle(event, snowflake.x, snowflake.y, snowflake.size, snowflakeColor.getRGB());
+
+            event.drawTexture(
+                    RenderLayer::getGuiTextured,
+                    imageIdentifier,
+                    (int) snowflake.x, (int) snowflake.y,
+                    0, 0,
+                    (int) snowflake.size, (int) snowflake.size,
+                    (int) snowflake.size, (int) snowflake.size
+            );
+
+            //RenderUtils.drawCircle(event, snowflake.x, snowflake.y, snowflake.size, snowflakeColor.getRGB());
         }
     }
 

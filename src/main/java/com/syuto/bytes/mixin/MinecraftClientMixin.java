@@ -1,6 +1,8 @@
 package com.syuto.bytes.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import com.syuto.bytes.auth.LoginGUI;
+import com.syuto.bytes.auth.MainMenu;
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.impl.player.FastPlace;
 import com.syuto.bytes.module.impl.render.clickgui.ImGuiImpl;
@@ -9,6 +11,7 @@ import dev.blend.util.render.DrawUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.util.Window;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
@@ -73,16 +76,20 @@ public abstract class MinecraftClientMixin {
     }
 
     // WHAT IS THIS???
-    /*@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
     private void onSetScreen(Screen screen, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (!Objects.equals(LoginGUI.rsp, "AUTHENTICATION_SUCCESS")) {
+        if (screen instanceof TitleScreen) {
+            client.setScreen(new MainMenu());
+            ci.cancel();
+        }
+        /*if (!Objects.equals(LoginGUI.rsp, "AUTHENTICATION_SUCCESS")) {
             System.out.println("hello c: " + LoginGUI.rsp);
             if (!(screen instanceof LoginGUI)) {
                 client.setScreen(new LoginGUI());
                 ci.cancel();
             }
         }
-        System.out.println("hello: " + LoginGUI.rsp);
-    }*/
+        System.out.println("hello: " + LoginGUI.rsp);*/
+    }
 }

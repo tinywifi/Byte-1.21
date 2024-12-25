@@ -7,6 +7,10 @@ import com.syuto.bytes.module.ModuleManager;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.entity.state.LivingEntityRenderState;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +26,16 @@ public class Byte implements ModInitializer {
 	public CommandManager commandManager;
 	public Handlers handlers;
 
+	public static final Identifier FEM_SOUND_ID = Identifier.of("byte", "music.fem");
+	public static final SoundEvent FEM_SOUND_EVENT = SoundEvent.of(FEM_SOUND_ID);
+
+
 	public Byte() {
 		eventBus = new EventBus();
 		commandManager = new CommandManager();
 		handlers = new Handlers();
 
+		Registry.register(Registries.SOUND_EVENT, FEM_SOUND_ID, FEM_SOUND_EVENT);
 		registerEvents();
 	}
 

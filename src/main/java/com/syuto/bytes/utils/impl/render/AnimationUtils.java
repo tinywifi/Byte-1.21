@@ -19,7 +19,7 @@ public class AnimationUtils {
     public static float height = -0.1f;
 
     public static void animate(MatrixStack matrices, float swingProgress, float f) {
-        float sine = (float) Math.sin(MathHelper.sqrt(swingProgress) * Math.PI);
+        float sine = (float) Math.sin(MathHelper.sqrt(swingProgress) * Math.PI) ;
 
         Animations animation = ModuleManager.getModule(Animations.class);
         assert animation != null;
