@@ -11,6 +11,8 @@ import lombok.ToString;
 import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Supplier;
+
 @Getter
 @Setter
 @ToString
@@ -25,7 +27,7 @@ public abstract class Module extends SettingHolder {
     public int key;
 
     // New field for suffix
-    private String suffix = "";
+    private Supplier<String> suffix = () -> "";
 
     protected void onEnable() {}
     protected void onDisable() {}
@@ -51,10 +53,6 @@ public abstract class Module extends SettingHolder {
 
     @NotNull
     public String getSuffix() {
-        return suffix;
-    }
-
-    public void setSuffix(@NotNull String suffix) {
-        this.suffix = suffix;
+        return suffix.get();
     }
 }

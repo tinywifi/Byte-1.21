@@ -19,7 +19,7 @@ public class Killaura extends Module {
 
     public Killaura() {
         super("Killaura", "Attacks people for you", Category.COMBAT);
-        this.setSuffix("Switch");
+        this.setSuffix(() -> "Switch"); // replace with mode.getValue() when its added
 //        values.add(reach); // this isn't needed. do NOT do it.
     }
 
