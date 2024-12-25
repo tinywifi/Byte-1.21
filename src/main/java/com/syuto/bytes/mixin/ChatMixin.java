@@ -10,12 +10,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class ChatMixin {
-    @Inject(at = @At("HEAD"), method = "sendChatMessage")
+    @Inject(at = @At("HEAD"), method = "sendChatMessage", cancellable = true)
     public void sendChatMessage(String content, CallbackInfo ci) {
         ChatEvent e = new ChatEvent(content);
         Byte.INSTANCE.eventBus.post(e);
-        if (e.isCanceled()) return;
 
-        System.out.println(content + " " + e.isCanceled()); // e.isCancelled is always gonna be false here idiot
+        System.out.println(content + " " + e.isCanceled());
+        if (e.isCanceled()) ci.cancel();
     }
 }
