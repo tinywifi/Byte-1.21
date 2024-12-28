@@ -116,7 +116,7 @@ public class MainMenu extends Screen {
             }
         });
 
-        playCustomSound();
+        //playCustomSound();
     }
 
     private void playCustomSound() {

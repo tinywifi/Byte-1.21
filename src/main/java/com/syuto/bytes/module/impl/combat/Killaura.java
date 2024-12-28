@@ -1,6 +1,7 @@
 package com.syuto.bytes.module.impl.combat;
 
 import com.syuto.bytes.eventbus.EventHandler;
+import com.syuto.bytes.eventbus.impl.PacketSentEvent;
 import com.syuto.bytes.eventbus.impl.PreMotionEvent;
 import com.syuto.bytes.eventbus.impl.PreUpdateEvent;
 import com.syuto.bytes.eventbus.impl.RenderWorldEvent;
@@ -10,9 +11,12 @@ import com.syuto.bytes.setting.impl.NumberSetting;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
 import com.syuto.bytes.utils.impl.rotation.RotationUtils;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemUsage;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.MathHelper;
 
 public class Killaura extends Module {
     public NumberSetting reach = new NumberSetting("Reach",this,3.0D,3.0D,6.0D, 0.5D);
@@ -20,12 +24,12 @@ public class Killaura extends Module {
     public Killaura() {
         super("Killaura", "Attacks people for you", Category.COMBAT);
         this.setSuffix(() -> "Switch"); // replace with mode.getValue() when its added
-//        values.add(reach); // this isn't needed. do NOT do it.
     }
 
     private boolean rot;
     public static float[] rots;
     Entity target;
+    int ticks;
 
     @EventHandler
     void onPreUpdate(PreUpdateEvent event) {
@@ -33,9 +37,9 @@ public class Killaura extends Module {
         double minHealth = Double.MAX_VALUE;
 
         for (Entity entity : mc.world.getEntities()) {
-            if (entity instanceof LivingEntity && entity != mc.player) {
+            if (entity instanceof PlayerEntity && entity != mc.player) {
                 double distance = mc.player.distanceTo(entity);
-                LivingEntity livingEntity = (LivingEntity) entity;
+                PlayerEntity livingEntity = (PlayerEntity) entity;
                 if (distance <= reach.getValue().doubleValue() && livingEntity.isAlive()) {
                     if (livingEntity.getHealth() < minHealth) {
                         closestEntity = entity;
@@ -46,10 +50,19 @@ public class Killaura extends Module {
         }
 
         if (closestEntity != null) {
+
+            ticks++;
             this.target = closestEntity;
-            if (mc.player.getAttackCooldownProgress(0.5f) >= 1.0 && target.isAlive()) {
-                mc.interactionManager.attackEntity(mc.player, target);
-                mc.player.swingHand(Hand.MAIN_HAND);
+            ItemUsage.consumeHeldItem(mc.world,mc.player,Hand.MAIN_HAND);
+
+            if (ticks % 2 == 0) {
+                mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(8));
+                mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(0));
+                mc.interactionManager.interactItem(mc.player,Hand.MAIN_HAND);
+                if (target.isAlive()) {
+                    mc.interactionManager.attackEntity(mc.player, target);
+                    mc.player.swingHand(Hand.MAIN_HAND);
+                }
             }
         } else {
             this.target = null;
@@ -61,11 +74,14 @@ public class Killaura extends Module {
     @EventHandler
     void onPreMotion(PreMotionEvent event) {
         if (target != null && rots != null) {
-            event.yaw = rots[0];
-            event.pitch = rots[1];
-            mc.player.bodyYaw = MathHelper.wrapDegrees(rots[0]);
-            mc.player.headYaw = MathHelper.wrapDegrees(rots[0]);
+            float yaw = Math.clamp(rots[0] % 360.0F, -360.0F, 360.0F);
+            float pitch = Math.clamp(rots[1] % 360.0F, -90.0F, 90.0F);;
 
+            event.yaw = yaw;
+            event.pitch = pitch;
+
+            mc.player.bodyYaw = yaw;
+            mc.player.headYaw = yaw;
         }
     }
 
@@ -74,6 +90,24 @@ public class Killaura extends Module {
         if (target != null) {
             RenderUtils.renderBox(target, e, e.partialTicks);
             rots = RotationUtils.getRotations(target);
+        }
+    }
+
+
+    @EventHandler
+    void onPacketSent(PacketSentEvent event) {
+        if (event.getPacket() instanceof PlayerActionC2SPacket) {
+            PlayerActionC2SPacket c07 = (PlayerActionC2SPacket) event.getPacket();
+            //ChatUtils.print("C07 " + c07.getAction());
+
+            event.setCanceled(true);
+        }
+
+        if (event.getPacket() instanceof PlayerInteractItemC2SPacket) {
+            PlayerInteractItemC2SPacket c08 = (PlayerInteractItemC2SPacket) event.getPacket();
+           // ChatUtils.print("C08 " + c08.getPacketType());
+
+
         }
     }
 }

@@ -13,6 +13,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.message.SentMessage;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -22,6 +23,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
+import org.lwjgl.glfw.GLFW;
 
 import static com.syuto.bytes.Byte.mc;
 
@@ -34,6 +36,7 @@ public class Test extends Module {
     private int[] blockInfo;
     private float[] rots;
     private int blockSlot = -1;
+    private int airTicks = 0;
 
 
     public Test() {
@@ -73,21 +76,56 @@ public class Test extends Module {
 
     @EventHandler
     public void onPreMotion(PreMotionEvent event) {
+        if (mc.player.isOnGround()) {
+            airTicks = 0;
+        } else {
+            airTicks++;
+        }
+
         if (targetBlock != null) {
             rots = getBlockRotations(targetBlock, facing);
         }
 
         if (rots != null) {
-            event.yaw = getDirection() + 270;
-            event.pitch = rots[1];
+            float yaw = Math.clamp(rots[0] % 360.0F, -360.0F, 360.0F);
+            float pitch = Math.clamp(rots[1] % 360.0F, -90.0F, 90.0F);
+
+            event.yaw = yaw;
+            event.pitch = pitch;
             if (facing == Direction.UP) {
-                event.yaw = rots[0];
-                event.pitch = rots[1];
+                event.yaw = yaw;
+                event.pitch = pitch;
             }
 
             //float spin = -(System.currentTimeMillis() / 2 % 360);
-            mc.player.bodyYaw = MathHelper.wrapDegrees(event.yaw);
-            mc.player.headYaw = MathHelper.wrapDegrees(event.yaw);
+            mc.player.bodyYaw = yaw;
+            mc.player.headYaw = yaw;
+        }
+
+
+        Vec3d motion = mc.player.getVelocity();
+        int simpleY = (int) Math.round((event.posY % 1.0D) * 100.0D);
+
+        ChatUtils.print(simpleY + " " + airTicks);
+        if (mc.options.jumpKey.isPressed()) {
+            switch(simpleY) {
+                case 0 -> {
+                    mc.player.setVelocity(motion.x, 0.42f, motion.z);
+                    if (airTicks == 6) {
+                        event.posY += 1E-14;
+                        mc.player.setVelocity(motion.x, 0, motion.z);
+                        airTicks = -1;
+                        ChatUtils.print("bye " + airTicks);
+                    }
+                }
+                case 42 -> {
+                    mc.player.setVelocity(motion.x, 0.33f, motion.z);
+                }
+                case 75 -> {
+                    mc.player.setVelocity(motion.x, 0.25f, motion.z);
+                }
+
+            }
         }
 
         targetBlock = null;
@@ -109,6 +147,9 @@ public class Test extends Module {
 
         facing = Direction.byId(blockFacing);
 
+        //if (facing == Direction.UP) return;
+
+
         targetBlock = new BlockPos(blockX, blockY, blockZ);
 
         BlockPos blockPos = targetBlock;
@@ -119,6 +160,7 @@ public class Test extends Module {
 
         //ChatUtils.print("Face: " + facing.asString() + " HitY: " + hitY);
 
+        //BlockPos.findClosest()
         Vec3d hitVec = new Vec3d(hitX, hitY, hitZ);
 
         blockHitResult = new BlockHitResult(hitVec, facing, blockPos, false);
@@ -209,16 +251,15 @@ public class Test extends Module {
     }
 
     public float[] getBlockRotations(BlockPos blockPos, Direction facing) {
-        double d = blockPos.getX() + 0.5 - mc.player.getX() + facing.getOffsetX() * 0.45;
-        double d2 = blockPos.getZ() + 0.5 - mc.player.getZ() + facing.getOffsetZ() * 0.45;
-        double d3 = mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()) - blockPos.getY() - facing.getOffsetY() * 0.45;
+        double d = blockPos.getX() + 0.5 - mc.player.getX() + facing.getOffsetX() * 0.5;
+        double d2 = blockPos.getZ() + 0.5 - mc.player.getZ() + facing.getOffsetZ() * 0.5;
+        double d3 = mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()) - blockPos.getY() - facing.getOffsetY() * 0.5;
         double d4 = Math.sqrt(d * d + d2 * d2);
         float yaw = (float) (Math.atan2(d2, d) * 180.0 / Math.PI) - 90.0f;
         float pitch = (float) (Math.atan2(d3, d4) * 180.0 / Math.PI);
         if (facing == Direction.UP || facing == Direction.DOWN) {
             yaw = getDirection() + 180;
         }
-
         yaw = MathHelper.wrapDegrees(yaw);
         return new float[]{yaw, pitch};
     }

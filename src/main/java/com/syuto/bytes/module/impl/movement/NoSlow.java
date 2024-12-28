@@ -12,12 +12,8 @@ public class NoSlow extends Module {
 
     public NoSlow() {
         super("NoSlow", "Stops you from slowing down", Category.MOVEMENT);
-        values.add(modes);
         setSuffix(() -> modes.getValue());
-        Byte.LOGGER.info("UPDATE");
     }
-
-
 
     @EventHandler
     public void onSlowDown(SlowDownEvent event) {

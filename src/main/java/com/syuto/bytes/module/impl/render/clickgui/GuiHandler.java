@@ -124,6 +124,7 @@ public class GuiHandler extends Screen {
                 booleanSetting.setValue(!active);
             }
         }
+
         else if (setting instanceof ColorSetting colorSetting) {
             Color color = colorSetting.getValue();
             float[] colorArray = {

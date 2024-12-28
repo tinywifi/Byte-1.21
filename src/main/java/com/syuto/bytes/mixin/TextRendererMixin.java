@@ -21,8 +21,10 @@ public class TextRendererMixin {
             index = 0
     )
     private static String adjustText(String text) {
-        String playerName = mc.player.getName().getLiteralString();
-        text = text.replaceAll(playerName, "Byte");
+        if (mc.player != null) {
+            String playerName = mc.player.getName().getLiteralString();
+            text = text.replaceAll(playerName, "Byte");
+        }
         return text;
     }
 }

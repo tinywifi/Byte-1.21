@@ -11,6 +11,8 @@ import static com.syuto.bytes.Byte.mc;
 
 public class RotationUtils {
 
+    public static double deltaX, deltaY, deltaZ;
+
 
     public static float[] getRotations(Entity entity) {
         if (entity == null) {
@@ -37,7 +39,7 @@ public class RotationUtils {
 
         double horizontalDistance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
         float pitch = (float) (-(MathHelper.atan2(deltaY, horizontalDistance) * (180.0 / Math.PI)));
-        pitch = MathHelper.wrapDegrees(pitch - player.getPitch()) + player.getPitch() + 3.0F;
+        pitch = MathHelper.wrapDegrees(pitch - player.getPitch()) + player.getPitch();
 
         return new float[]{yaw, clampPitch(pitch)};
     }

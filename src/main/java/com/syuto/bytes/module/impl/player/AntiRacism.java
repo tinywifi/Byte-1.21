@@ -4,6 +4,8 @@ import com.syuto.bytes.eventbus.EventHandler;
 import com.syuto.bytes.eventbus.impl.ChatEvent;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
+import com.syuto.bytes.utils.impl.client.ChatUtils;
+import net.minecraft.sound.SoundEvent;
 
 
 public class AntiRacism extends Module {
@@ -12,36 +14,20 @@ public class AntiRacism extends Module {
     }
 
     static String[] racismList = new String[] {
-            "fuck",
-            "nigger",
-            "nigga",
-            "negroid",
-            "niglet",
-            "niggle",
-            "monkey",
-            "charcoal chimpanzee",
-            "shit",
-            "ass",
-            "cunt",
-            "sket",
-            "bitch",
-            "bastard",
-            "retard",
-            "skid",
-            "nignog",
-            "niggur",
-            "blackie",
-            "tranny",
-            "faggot",
-            "ladyboy"
+            "nigger", "niggur", "nigga",
+            "niga", "monkey", "blackie",
+            "kike", "chink", "beaner",
+            "chimp", "chigga"
     };
 
     @EventHandler
     public void onChat(ChatEvent event) {
         String message = event.getMessage().toLowerCase();
         for (String word : racismList) {
-            if (message.contains(word)) {
+            if (message.contains(word) && !event.isCanceled()) {
                 String replacement = "*".repeat(word.length());
+                ChatUtils.print("No no word!");
+                //event.setCanceled(true);
                 event.setMessage(message.replaceAll(word, replacement));
             }
         }

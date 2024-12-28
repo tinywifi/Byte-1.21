@@ -1,8 +1,7 @@
 package com.syuto.bytes.eventbus.impl;
 
 import com.syuto.bytes.eventbus.Event;
-
-import static com.syuto.bytes.Byte.mc;
+import com.syuto.bytes.utils.impl.rotation.RotationUtils;
 
 public class PreMotionEvent implements Event {
     public static double posX;

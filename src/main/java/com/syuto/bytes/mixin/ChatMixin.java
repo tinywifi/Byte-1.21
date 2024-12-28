@@ -13,9 +13,12 @@ public abstract class ChatMixin {
     @Inject(at = @At("HEAD"), method = "sendChatMessage", cancellable = true)
     public void sendChatMessage(String content, CallbackInfo ci) {
         ChatEvent e = new ChatEvent(content);
-        Byte.INSTANCE.eventBus.post(e);
 
+        Byte.INSTANCE.eventBus.post(e);
         System.out.println(content + " " + e.isCanceled());
         if (e.isCanceled()) ci.cancel();
+
+        content = e.getMessage();
+        Byte.LOGGER.info("Sent message content: {} ", content);
     }
 }

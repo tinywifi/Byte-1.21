@@ -7,6 +7,8 @@ import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
+import dev.blend.util.render.Alignment;
+import dev.blend.util.render.DrawUtil;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Formatting;
@@ -52,8 +54,10 @@ public class Hud extends Module {
         MatrixStack matrices = event.context.getMatrices();
         Matrix4f matrix = matrices.peek().getPositionMatrix();
         int screenWidth = mc.getWindow().getScaledWidth();
+        int screenHeight = mc.getWindow().getScaledHeight();
         int yPosition = 1;
 
+        DrawUtil.begin();
         mc.textRenderer.draw(
                 "</byte>",
                 5,
@@ -77,18 +81,6 @@ public class Hud extends Module {
                 int textWidth = mc.textRenderer.getWidth(displayText);
                 int xPosition = screenWidth - textWidth - 2;
 
-                /*mc.textRenderer.draw(
-                        displayText,
-                        xPosition,
-                        yPosition,
-                        cyan.getRGB(),
-                        true,
-                        matrix,
-                        mc.getBufferBuilders().getEntityVertexConsumers(),
-                        TextRenderer.TextLayerType.NORMAL,
-                        0,
-                        255
-                );*/
 
                 RenderUtils.drawTextWithBackground(
                         matrix,
@@ -102,6 +94,7 @@ public class Hud extends Module {
                 yPosition += mc.textRenderer.fontHeight + 3;
             }
         }
+        DrawUtil.end();
     }
 }
 
