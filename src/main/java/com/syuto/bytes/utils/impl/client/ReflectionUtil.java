@@ -1,4 +1,4 @@
-package com.syuto.bytes.utils.impl;
+package com.syuto.bytes.utils.impl.client;
 
 import sun.misc.Unsafe;
 

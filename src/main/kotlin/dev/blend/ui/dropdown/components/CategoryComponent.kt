@@ -117,6 +117,7 @@ class CategoryComponent(
     fun canAnimateExpansion(): Boolean {
         return !components.any { it.isExpanding() }
     }
+
     fun isExpanding(): Boolean {
         return !expandAnimation.finished
     }

@@ -6,7 +6,6 @@ import com.syuto.bytes.eventbus.Handlers;
 import com.syuto.bytes.module.ModuleManager;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
@@ -41,7 +40,7 @@ public class Byte implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		final long time = System.currentTimeMillis();
+        final long time = System.currentTimeMillis();
 		ModuleManager.registerModules();
 		LOGGER.info("Initialized {} in {}ms.", NAME, System.currentTimeMillis() - time);
 	}

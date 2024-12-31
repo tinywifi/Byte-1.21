@@ -29,7 +29,7 @@ public class Killaura extends Module {
     private boolean rot;
     public static float[] rots;
     Entity target;
-    int ticks;
+    int ticks, d;
 
     @EventHandler
     void onPreUpdate(PreUpdateEvent event) {
@@ -54,9 +54,9 @@ public class Killaura extends Module {
             this.target = closestEntity;
             ItemUsage.consumeHeldItem(mc.world,mc.player,Hand.MAIN_HAND);
 
-            if (ticks % 2 == 0) {
-                mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(8));
-                mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(0));
+            if (ticks % 1 == 0) {
+                //mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(8));
+                //mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(0));
                 mc.interactionManager.interactItem(mc.player,Hand.MAIN_HAND);
                 if (target.isAlive()) {
                     mc.interactionManager.attackEntity(mc.player, target);
@@ -79,8 +79,10 @@ public class Killaura extends Module {
             event.yaw = yaw;
             event.pitch = pitch;
 
-            mc.player.bodyYaw = yaw;
             mc.player.headYaw = yaw;
+
+            mc.player.bodyYaw = yaw;
+
         }
     }
 

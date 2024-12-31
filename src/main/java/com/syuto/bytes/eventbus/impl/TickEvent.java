@@ -1,4 +1,6 @@
 package com.syuto.bytes.eventbus.impl;
 
-public class TickEvent {
+import com.syuto.bytes.eventbus.Event;
+
+public class TickEvent implements Event {
 }
