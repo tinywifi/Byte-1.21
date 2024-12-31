@@ -15,6 +15,7 @@ public class PreMotionEvent implements Event {
     public static boolean isSprinting;
     public static boolean isSneaking;
     public static boolean horizontalCollision;
+    public static boolean pitchChanged = false;
 
     public PreMotionEvent(double posX, double posY, double posZ, float yaw, float pitch, float lastYaw, float lastPitch, boolean onGround, boolean isSprinting, boolean isSneaking, boolean horizontalCollision) {
         this.posX = posX;

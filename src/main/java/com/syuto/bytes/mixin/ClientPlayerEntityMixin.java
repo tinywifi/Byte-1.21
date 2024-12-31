@@ -98,6 +98,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
         if (this.isCamera()) {
 
             Byte.INSTANCE.eventBus.post(event);
+            PreMotionEvent.pitchChanged = PreMotionEvent.pitch != getPitch();
 
             double d = event.posX - this.lastX;
             double e = event.posY - this.lastBaseY;
