@@ -12,6 +12,7 @@
     "ItemRendererMixin",
     "KeyboardMixin",
     "MinecraftClientMixin",
+    "MinecraftMixin",
     "PacketReceivedMixin",
     "PlayerEntityMixin",
     "PlayerEntityRendererMixin",
