@@ -30,14 +30,4 @@ public class EntityMixin {
         }
     }
 
-    @Inject(method = "changeLookDirection", at = @At("HEAD"), cancellable = true)
-    private void updateChangeLookDirection(double cursorDeltaX, double cursorDeltaY, CallbackInfo ci) {
-        if ((Object) this != mc.player) return;
-
-        RotationUtils.deltaX = cursorDeltaX;
-        RotationUtils.deltaY = cursorDeltaY;
-        RotationUtils.deltaZ = 0.0F;
-
-    }
-
 }

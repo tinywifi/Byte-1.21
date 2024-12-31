@@ -29,9 +29,4 @@ public class PlayerEntityRendererMixin {
     public float getLerpedPitch(float tickDelta) {
         return tickDelta == 1.0F ? PreMotionEvent.pitch : MathHelper.lerp(tickDelta, PreMotionEvent.lastPitch, PreMotionEvent.pitch);
     }
-
-    @Unique
-    public float getLerpedYaw(float tickDelta) {
-        return tickDelta == 1.0F ? mc.player.headYaw : MathHelper.lerp(tickDelta, mc.player.prevHeadYaw, mc.player.headYaw);
-    }
 }

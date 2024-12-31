@@ -8,13 +8,13 @@ import com.syuto.bytes.eventbus.impl.RenderWorldEvent;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.setting.impl.NumberSetting;
+import com.syuto.bytes.utils.impl.player.PlayerUtil;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
 import com.syuto.bytes.utils.impl.rotation.RotationUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemUsage;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.util.Hand;
 
@@ -23,7 +23,7 @@ public class Killaura extends Module {
 
     public Killaura() {
         super("Killaura", "Attacks people for you", Category.COMBAT);
-        this.setSuffix(() -> "Switch"); // replace with mode.getValue() when its added
+        this.setSuffix(() -> "Switch");
     }
 
     private boolean rot;
@@ -38,7 +38,7 @@ public class Killaura extends Module {
 
         for (Entity entity : mc.world.getEntities()) {
             if (entity instanceof PlayerEntity && entity != mc.player) {
-                double distance = mc.player.distanceTo(entity);
+                double distance = PlayerUtil.getBiblicallyAccurateDistanceToPlayer(entity);
                 PlayerEntity livingEntity = (PlayerEntity) entity;
                 if (distance <= reach.getValue().doubleValue() && livingEntity.isAlive()) {
                     if (livingEntity.getHealth() < minHealth) {
@@ -50,7 +50,6 @@ public class Killaura extends Module {
         }
 
         if (closestEntity != null) {
-
             ticks++;
             this.target = closestEntity;
             ItemUsage.consumeHeldItem(mc.world,mc.player,Hand.MAIN_HAND);
@@ -98,17 +97,9 @@ public class Killaura extends Module {
     void onPacketSent(PacketSentEvent event) {
         if (event.getPacket() instanceof PlayerActionC2SPacket) {
             PlayerActionC2SPacket c07 = (PlayerActionC2SPacket) event.getPacket();
-            //ChatUtils.print("C07 " + c07.getAction());
-
             event.setCanceled(true);
         }
 
-        if (event.getPacket() instanceof PlayerInteractItemC2SPacket) {
-            PlayerInteractItemC2SPacket c08 = (PlayerInteractItemC2SPacket) event.getPacket();
-           // ChatUtils.print("C08 " + c08.getPacketType());
-
-
-        }
     }
 }
 
