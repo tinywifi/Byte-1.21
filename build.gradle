@@ -31,6 +31,7 @@ dependencies {
 	include implementation("org.slf4j:slf4j-api:1.7.32")
 	include implementation('org.javassist:javassist:3.28.0-GA')
 	include implementation('com.github.oshi:oshi-core:6.4.5')
+	include implementation('net.java.dev.jna:jna:5.16.0')
 
 	//implementation("org.lwjgl:lwjgl:${project.minecraft_lwjgl_version}")
 	//implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}")
