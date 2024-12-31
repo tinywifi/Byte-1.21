@@ -69,8 +69,6 @@ public class Snow {
                     (int) snowflake.size, (int) snowflake.size,
                     (int) snowflake.size, (int) snowflake.size
             );
-
-            //RenderUtils.drawCircle(event, snowflake.x, snowflake.y, snowflake.size, snowflakeColor.getRGB());
         }
     }
 

@@ -42,13 +42,9 @@ public class AnimationUtils {
             case "Spin" -> {
                 float spin = -(System.currentTimeMillis() / 2 % 360);
                 matrices.translate(-0.1, 0,-0.2);
-               // matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-sine * 50));
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(spin));
             }
         }
 
-        /*
-
-         */
     }
 }

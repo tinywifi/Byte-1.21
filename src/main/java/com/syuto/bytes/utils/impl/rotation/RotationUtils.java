@@ -4,15 +4,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 
-import static com.syuto.bytes.Byte.mc;
-
 public class RotationUtils {
-
-    public static double deltaX, deltaY, deltaZ;
-
 
     public static float[] getRotations(Entity entity) {
         if (entity == null) {
