@@ -1,7 +1,6 @@
 package com.syuto.bytes.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.syuto.bytes.auth.LoginGUI;
 import com.syuto.bytes.auth.MainMenu;
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.impl.player.FastPlace;
