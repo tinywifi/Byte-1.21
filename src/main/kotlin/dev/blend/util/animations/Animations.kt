@@ -15,3 +15,11 @@ class SineInOutAnimation(duration: Number = 200.0): AbstractAnimation( { x -> -(
 class CubicOutAnimation(duration: Number = 200.0): AbstractAnimation( { x -> 1 - (1 - x).pow(3.0) }, duration)
 
 class ExpoOutAnimation(duration: Number = 200.0): AbstractAnimation( { x -> if (x == 1.0) 1.0 else 1.0 - 2.0.pow(-10.0 * x) }, duration)
+
+/**
+ * const c1 = 1.70158;
+ * const c3 = c1 + 1;
+ *
+ * return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+ */
+class BackOutAnimation(duration: Number = 200.0): AbstractAnimation( {x -> 1 + 2.70158 * (x - 1).pow(3) + 1.70158 * (x - 1).pow(2) }, duration)

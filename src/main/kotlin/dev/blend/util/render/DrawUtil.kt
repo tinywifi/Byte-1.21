@@ -40,6 +40,14 @@ object DrawUtil: IAccessor {
         postRender()
     }
 
+    inline fun translate(x: Number, y: Number, content: () -> Unit) {
+        save()
+        translate(x, y)
+        content()
+        resetTranslate()
+        restore()
+    }
+
     @JvmStatic
     fun save() = nvgSave(context)
     @JvmStatic

@@ -4,6 +4,7 @@ import com.syuto.bytes.module.ModuleManager
 import com.syuto.bytes.module.api.Category
 import com.syuto.bytes.module.impl.render.ClickGUIModule
 import dev.blend.ui.dropdown.components.CategoryComponent
+import dev.blend.util.animations.BackOutAnimation
 import dev.blend.util.render.DrawUtil
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
@@ -12,6 +13,9 @@ import net.minecraft.text.Text
 object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
 
     private val components = mutableListOf<CategoryComponent>()
+    private val openAnimation = BackOutAnimation()
+    private var opened = false
+    private var shouldClose = false
 
     init {
         var x = 20.0
@@ -28,14 +32,32 @@ object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
         components.forEach{
             it.init()
         }
+        openAnimation.set(-500.0)
+        opened = true
+        shouldClose = false
     }
 
     override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
         DrawUtil.begin()
-        components.forEach {
-            it.render(mouseX, mouseY)
+        DrawUtil.translate(0, openAnimation.get()) {
+            components.forEach {
+                it.render(mouseX, mouseY)
+            }
         }
         DrawUtil.end()
+        openAnimation.animate(
+            if (opened) {
+                0.0
+            } else if (shouldClose) {
+                500.0
+            } else {
+                -500.0
+            }
+        )
+        openAnimation.duration = 400
+        if (shouldClose && openAnimation.finished) {
+            ModuleManager.getModule(ClickGUIModule::class.java)?.setEnabled(false)
+        }
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
@@ -71,7 +93,8 @@ object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
         components.forEach{
             it.close()
         }
-        ModuleManager.getModule(ClickGUIModule::class.java)?.setEnabled(false)
+        opened = false
+        shouldClose = true
     }
 
     override fun shouldPause(): Boolean {

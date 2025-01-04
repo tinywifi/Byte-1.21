@@ -19,7 +19,6 @@
     "RenderMixin",
     "RenderWorldMixin",
     "SendPacketMixin",
-    "TextRendererMixin",
-    "TitleScreenMixin"
+    "TextRendererMixin"
   ]
 }
