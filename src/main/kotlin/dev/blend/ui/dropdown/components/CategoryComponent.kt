@@ -8,6 +8,7 @@ import dev.blend.util.animations.*
 import dev.blend.util.render.Alignment
 import dev.blend.util.render.DrawUtil
 import org.lwjgl.glfw.GLFW
+import kotlin.math.max
 
 class CategoryComponent(
     private val category: Category
@@ -63,6 +64,11 @@ class CategoryComponent(
             expandAnimation.set(veryRealHeight)
             this.height = veryRealHeight
         }
+        // base duration(200ms) * max(1.0, (height / how much height it should cover within the base duration of 200ms))
+        // just adjust the base height this is what I think works alright...
+        // also use max to make sure animation doesn't go superfast
+        // that is animate with a duration lesser than 100ms
+        expandAnimation.duration = 200 * max(1.0, (veryRealHeight / 150))
         expandAnimation.animate(
             if (expanded) veryRealHeight else initialHeight
         )

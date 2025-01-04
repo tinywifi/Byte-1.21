@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
 	id "fabric-loom" version "1.9-SNAPSHOT"
 	id "org.jetbrains.kotlin.jvm" version "2.0.21"
@@ -20,9 +22,7 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
 	modImplementation("net.fabricmc:fabric-language-kotlin:${project.kotlin_loader_version}")
 	compileOnly("org.projectlombok:lombok:1.18.34")
 	annotationProcessor("org.projectlombok:lombok:1.18.34")
@@ -40,10 +40,6 @@ dependencies {
 		include implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}:natives-${it}")
 		//include("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}:natives-${it}")
 	}
-
-	include implementation("io.github.spair:imgui-java-binding:${project.imgui_version}")
-	include implementation("io.github.spair:imgui-java-lwjgl3:${project.imgui_version}")
-	include implementation("io.github.spair:imgui-java-natives-windows:${project.imgui_version}")
 }
 
 processResources {
@@ -59,7 +55,7 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+tasks.withType(KotlinCompile).configureEach {
 	kotlinOptions {
 		jvmTarget = 21
 	}

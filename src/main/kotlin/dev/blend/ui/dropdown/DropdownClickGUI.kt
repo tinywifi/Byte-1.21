@@ -2,7 +2,7 @@ package dev.blend.ui.dropdown
 
 import com.syuto.bytes.module.ModuleManager
 import com.syuto.bytes.module.api.Category
-import com.syuto.bytes.module.impl.render.OtherClickGUI
+import com.syuto.bytes.module.impl.render.ClickGUIModule
 import dev.blend.ui.dropdown.components.CategoryComponent
 import dev.blend.util.render.DrawUtil
 import net.minecraft.client.gui.DrawContext
@@ -71,7 +71,7 @@ object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
         components.forEach{
             it.close()
         }
-        ModuleManager.getModule(OtherClickGUI::class.java)?.setEnabled(false)
+        ModuleManager.getModule(ClickGUIModule::class.java)?.setEnabled(false)
     }
 
     override fun shouldPause(): Boolean {

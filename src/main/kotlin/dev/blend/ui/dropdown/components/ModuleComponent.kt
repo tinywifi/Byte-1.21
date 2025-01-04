@@ -16,6 +16,7 @@ import dev.blend.util.render.Alignment
 import dev.blend.util.render.ColorUtil
 import dev.blend.util.render.DrawUtil
 import org.lwjgl.glfw.GLFW
+import kotlin.math.max
 
 class ModuleComponent(
     private val parent: CategoryComponent,
@@ -83,6 +84,7 @@ class ModuleComponent(
             this.height = veryRealHeight
         }
         last = parent.components.last() == this && !expanded
+        expandAnimation.duration = 200 * max(1.0, (veryRealHeight / 150))
         expandAnimation.animate(
             if (expanded) veryRealHeight else initialHeight
         )

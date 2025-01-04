@@ -4,16 +4,13 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.syuto.bytes.auth.MainMenu;
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.impl.player.FastPlace;
-import com.syuto.bytes.module.impl.render.clickgui.ImGuiImpl;
 import dev.blend.ThemeHandler;
 import dev.blend.util.render.DrawUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.util.Window;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,15 +22,6 @@ import java.util.function.Function;
 
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin {
-
-    @Shadow
-    @Final
-    private Window window;
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void initImGui(RunArgs args, CallbackInfo ci) {
-        ImGuiImpl.create(window.getHandle());
-    }
 
     @Inject(
             method = "<init>",

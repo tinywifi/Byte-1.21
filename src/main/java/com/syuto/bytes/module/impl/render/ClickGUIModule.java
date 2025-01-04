@@ -5,10 +5,10 @@ import com.syuto.bytes.module.api.Category;
 import dev.blend.ui.dropdown.DropdownClickGUI;
 import org.lwjgl.glfw.GLFW;
 
-public class OtherClickGUI extends Module {
+public class ClickGUIModule extends Module {
 
-    public OtherClickGUI() {
-        super("GUI", "description", Category.RENDER);
+    public ClickGUIModule() {
+        super("ClickGUI", "Displays a GUI for the user to configure the client in.", Category.RENDER);
         setKey(GLFW.GLFW_KEY_RIGHT_SHIFT);
     }
 
