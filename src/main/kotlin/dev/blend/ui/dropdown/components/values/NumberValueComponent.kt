@@ -42,8 +42,8 @@ class NumberValueComponent(
 
         val heldColor = ColorUtil.mixColors(ThemeHandler.getTextColor(), ThemeHandler.getPrimary(), selectAnimation.get())
         with(DrawUtil) {
-            drawString(value.name, x + padding, y + padding, 8, ThemeHandler.getTextColor(), Alignment.CENTER_LEFT)
-            drawString(value.value.toString(), (x + width) - padding, y + padding, 8, heldColor, Alignment.CENTER_RIGHT)
+            drawString(value.name, x + padding, y + padding, 8, ThemeHandler.getTextColor(), Alignment.TOP_LEFT)
+            drawString(value.value.toString(), (x + width) - padding, y + padding, 8, heldColor, Alignment.TOP_RIGHT)
             roundedRect(sliderX, sliderY, sliderW, sliderH, sliderH / 2.0, ThemeHandler.getContrast(), Alignment.CENTER_LEFT)
             roundedRect(sliderX, sliderY, dragAnimation.get(), sliderH, sliderH / 2.0, ThemeHandler.getPrimary(), Alignment.CENTER_LEFT)
             roundedRect(sliderX + dragAnimation.get(), sliderY, dragIndicator + (dragDependentAnimation.get() * 3.0), dragIndicator, dragIndicator / 2.0, ThemeHandler.getTextColor(), Alignment.CENTER)
