@@ -19,6 +19,8 @@ import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 import static com.syuto.bytes.Byte.mc;
 
@@ -31,8 +33,8 @@ public class Killaura extends Module {
         this.setSuffix(() -> "Switch");
     }
 
-    private boolean rot;
-    public static float[] rots;
+    private boolean blocking;
+    public static float[] rots, last;
     Entity target;
     int ticks, d;
 
@@ -65,8 +67,11 @@ public class Killaura extends Module {
                 case "Watchdog" -> {
                     mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(mc.player.getInventory().selectedSlot % 7 + 2));
                     mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(mc.player.getInventory().selectedSlot));
+                    blocking = false;
+
                     mc.interactionManager.interactEntity(mc.player, target, Hand.MAIN_HAND);
                     mc.interactionManager.interactItem(mc.player,Hand.MAIN_HAND);
+                    blocking = true;
 
                 }
             }
@@ -81,23 +86,32 @@ public class Killaura extends Module {
             this.target = null;
             rots = null;
         }
+
+        if (blocking && target == null) {
+            mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, Direction.DOWN));
+            ChatUtils.print("Unblocked");
+            blocking = false;
+        }
     }
 
 
     @EventHandler
     void onPreMotion(PreMotionEvent event) {
         if (target != null && rots != null) {
-            float yaw = Math.clamp(rots[0] % 360.0F, -360.0F, 360.0F);
-            float pitch = Math.clamp(rots[1] % 360.0F, -90.0F, 90.0F);
+            if (last == null) {
+                last = rots;
+            }
 
-            rots = RotationUtils.getFixedRotation(rots, rots);
+            rots = RotationUtils.getFixedRotation(rots, last);
 
+            event.yaw = rots[0];
+            event.pitch = rots[1];
 
-            event.yaw = yaw;
-            event.pitch = pitch;
+            mc.player.headYaw = rots[0];
+            mc.player.bodyYaw = (rots[0] - last[0]) + last[0];
 
-            mc.player.headYaw = yaw;
-            mc.player.bodyYaw = yaw;
+            last = rots;
+
 
         }
     }
@@ -111,12 +125,13 @@ public class Killaura extends Module {
         }
     }
 
-
     @EventHandler
     void onPacketSent(PacketSentEvent event) {
         if (event.getPacket() instanceof PlayerActionC2SPacket e) {
-            ChatUtils.print("C07 " + e.getAction() + " " + ticks);
-             event.setCanceled(true);
+            if (target != null && e.getAction() == PlayerActionC2SPacket.Action.RELEASE_USE_ITEM) {
+                ChatUtils.print("C07 " + e.getAction() + " " + ticks);
+                event.setCanceled(true);
+            }
         }
     }
 }

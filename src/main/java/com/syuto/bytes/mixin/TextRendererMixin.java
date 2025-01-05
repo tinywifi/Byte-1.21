@@ -23,7 +23,7 @@ public class TextRendererMixin {
     private static String adjustText(String text) {
         if (mc.player != null) {
             String playerName = mc.player.getName().getLiteralString();
-            text = text.replaceAll(playerName, "Byte");
+            //text = text.replaceAll(playerName, "Byte");
         }
         return text;
     }

@@ -3,28 +3,19 @@ package com.syuto.bytes.utils.impl.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.syuto.bytes.eventbus.impl.RenderTickEvent;
 import com.syuto.bytes.eventbus.impl.RenderWorldEvent;
-import com.syuto.bytes.utils.impl.client.ChatUtils;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.debug.DebugRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.datafixer.fix.ChunkPalettedStorageFix;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3d;
-import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 import static com.syuto.bytes.Byte.mc;
 
@@ -167,7 +158,6 @@ public class RenderUtils {
         );
     }
 
-
     public static void drawRect(RenderTickEvent event, float left, float top, float right, float bottom, int color) {
         float f3 = (color >> 24 & 255) / 255.0F;
         float f = (color >> 16 & 255) / 255.0F;
@@ -188,6 +178,7 @@ public class RenderUtils {
 
         postRender(bufferBuilder, matrixStack);
     }
+
 
 
 

@@ -23,7 +23,6 @@ public class PlayerEntityRendererMixin {
         }
     }
 
-
     @Unique
     public float getLerpedPitch(float tickDelta, LivingEntity entity) {
         if(PreMotionEvent.pitchChanged) {
@@ -32,4 +31,6 @@ public class PlayerEntityRendererMixin {
             return entity.getLerpedPitch(tickDelta);
         }
     }
+
+
 }

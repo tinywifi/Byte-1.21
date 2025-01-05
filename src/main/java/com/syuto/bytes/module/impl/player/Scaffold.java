@@ -1,46 +1,42 @@
-package com.syuto.bytes.module.impl.misc;
+package com.syuto.bytes.module.impl.player;
 
-import com.syuto.bytes.Byte;
 import com.syuto.bytes.eventbus.EventHandler;
 import com.syuto.bytes.eventbus.impl.PreMotionEvent;
 import com.syuto.bytes.eventbus.impl.PreUpdateEvent;
 import com.syuto.bytes.module.Module;
-import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.api.Category;
-import com.syuto.bytes.module.impl.combat.Velocity;
-import com.syuto.bytes.utils.impl.client.ChatUtils;
+import com.syuto.bytes.utils.impl.player.MovementUtil;
+import com.syuto.bytes.utils.impl.rotation.RotationUtils;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.message.SentMessage;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
-import org.lwjgl.glfw.GLFW;
 
-import static com.syuto.bytes.Byte.mc;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 
-public class Test extends Module {
+public class Scaffold extends Module {
 
     private Direction facing;
     private BlockHitResult blockHitResult;
     private BlockPos targetBlock, blok;
     private int[] blockInfo;
-    private float[] rots;
+    private float[] rots, last;
     private int blockSlot = -1;
     private int airTicks = 0;
 
 
-    public Test() {
-        super("Test", "Module with absolutely 0 purpose.", Category.OTHER);
+    public Scaffold() {
+        super("Scaffold", "Module with absolutely 0 purpose.", Category.PLAYER);
     }
 
 
@@ -66,7 +62,7 @@ public class Test extends Module {
         }
 
 
-        if (mc.player.getInventory().getMainHandStack() != null) {
+        if (mc.player.getInventory().getStack(mc.player.getInventory().selectedSlot) != null) {
             place();
             place();
             place();
@@ -83,19 +79,21 @@ public class Test extends Module {
         }
 
         if (targetBlock != null) {
-            rots = getBlockRotations(targetBlock, facing);
+            rots = RotationUtils.getRotationsToBlock(mc.player.getEyePos(), targetBlock, facing);
         }
 
         if (rots != null) {
-            float yaw = yaw(); //Math.clamp(yaw() % 360.0F, -360.0F, 360.0F);
-            float pitch = Math.clamp(rots[1] % 360.0F, -90.0F, 90.0F);
+            if (last == null) {
+                last = rots;
+            }
 
-            event.yaw = yaw;
-            event.pitch = pitch;
+            event.yaw = yaw();
+            event.pitch = rots[1];
 
-            //float spin = -(System.currentTimeMillis() / 2 % 360);
-            mc.player.bodyYaw = yaw;
-            mc.player.headYaw = yaw;
+            mc.player.headYaw = (yaw() - last[0]) + last[0];
+            mc.player.bodyYaw = (yaw() - last[0]) + yaw();
+
+            last = new float[]{yaw(), 0};
         }
 
 
@@ -104,11 +102,11 @@ public class Test extends Module {
 
         //
         // ChatUtils.print(simpleY + " " + airTicks);
-        /*if (mc.options.jumpKey.isPressed()) {
+        if (mc.options.jumpKey.isPressed()) {
             switch(simpleY) {
                 case 0 -> {
                     mc.player.setVelocity(motion.x, 0.42f, motion.z);
-                    if (airTicks == 6) {
+                    if (airTicks == 15) {
                         event.posY += 1E-14;
                         mc.player.setVelocity(motion.x, 0, motion.z);
                         airTicks = -1;
@@ -117,13 +115,15 @@ public class Test extends Module {
                 }
                 case 42 -> {
                     mc.player.setVelocity(motion.x, 0.33f, motion.z);
+                    MovementUtil.setSpeed(0.28);
                 }
                 case 75 -> {
                     mc.player.setVelocity(motion.x, 0.25f, motion.z);
+                    MovementUtil.setSpeed(0.28);
                 }
 
             }
-        }*/
+        }
 
         targetBlock = null;
     }
@@ -131,7 +131,7 @@ public class Test extends Module {
 
 
     public void place() {
-        blockInfo = findBlocks();
+        blockInfo = findBlocks(3);
 
         if (blockInfo == null) {
             return;
@@ -144,9 +144,6 @@ public class Test extends Module {
 
         facing = Direction.byId(blockFacing);
 
-        if (facing == Direction.UP) return;
-
-
         targetBlock = new BlockPos(blockX, blockY, blockZ);
 
         BlockPos blockPos = targetBlock;
@@ -154,10 +151,6 @@ public class Test extends Module {
         double hitX = blockX + 0.5 + getCoord(blockFacing, "x") * 0.5;
         double hitY = blockY + 0.5 + getCoord(blockFacing, "y") * 0.5;
         double hitZ = blockZ + 0.5 + getCoord(blockFacing, "z") * 0.5;
-
-        //ChatUtils.print("Face: " + facing.asString() + " HitY: " + hitY);
-
-        //BlockPos.findClosest()
         Vec3d hitVec = new Vec3d(hitX, hitY, hitZ);
 
         blockHitResult = new BlockHitResult(hitVec, facing, blockPos, false);
@@ -177,9 +170,7 @@ public class Test extends Module {
     }
 
 
-
-
-    public static int[] findBlocks() {
+    public static int[] findBlocks(int range) {
         MinecraftClient client = MinecraftClient.getInstance();
         Entity player = client.player;
         World world = client.world;
@@ -202,7 +193,7 @@ public class Test extends Module {
                 }
             }
 
-            for (int offsetY = -1; offsetY <= 2; offsetY++) {
+            for (int offsetY = 0; offsetY <= range; offsetY++) {
                 BlockPos belowPlayerOffset = belowPlayer.offset(Direction.Axis.Y, -offsetY);
                 for (int enumFacing : enumFacings) {
                     if (enumFacing != 1) {
@@ -224,6 +215,8 @@ public class Test extends Module {
 
         return null;
     }
+
+
 
     public static BlockPos offsetPosition(BlockPos p, int facing) {
         switch (facing) {

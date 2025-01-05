@@ -30,7 +30,7 @@ public class TitleScreenMixin {
         int windowWidth = mc.getWindow().getScaledWidth();
         int windowHeight = mc.getWindow().getScaledHeight();
 
-        drawImage(context, 0, 0, windowWidth, windowHeight);
+        //drawImage(context, 0, 0, windowWidth, windowHeight);
         //Byte.LOGGER.info("w {}, h {}", windowWidth, windowHeight);
     }
 

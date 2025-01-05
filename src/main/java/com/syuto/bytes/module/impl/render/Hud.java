@@ -13,6 +13,7 @@ import dev.blend.util.render.Gradient;
 import dev.blend.util.render.ResourceManager;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.joml.Matrix4f;
 
@@ -60,18 +61,33 @@ public class Hud extends Module {
         int yPosition = 1;
 
 
-        DrawUtil.begin();
+
+        matrices.push();
+        //DrawUtil.begin();
 
 
 
-        int width = 200;
-        int height = 20;
-        int baseX = 5;
-        int baseY = 5;
+        String hudText = "ByteSense | developer (1.0) | " + (mc.getCurrentServerEntry() != null ? mc.getCurrentServerEntry().address : "singleplayer");
+        double width = DrawUtil.getStringWidth(hudText, 10, ResourceManager.FontResources.regular);
+
+        float height = 16;
+        float baseX = 5;
+        float baseY = 5;
 
 
-        RenderUtils.drawRect(event, baseX,baseY,width,height, new Color(60, 60, 60).getRGB());
-
+        /*DrawUtil.rect(baseX + 100, baseY + height + 2, width + 4, height + 2, new Color(60, 60, 60), Alignment.CENTER);
+        DrawUtil.rect(baseX + 100, baseY + height + 2, width - 1 + 4, height - 1 + 2, new Color(40, 40, 40), Alignment.CENTER);
+        DrawUtil.rect(baseX + 100, baseY + height + 2, width - 2 + 4, height - 2 + 2, new Color(60, 60, 60), Alignment.CENTER);
+        DrawUtil.rect(baseX + 100, baseY + height + 2, width - 2 + 4, height - 3 + 2, new Color(22, 22, 22), Alignment.CENTER);
+        DrawUtil.drawString(
+                hudText,
+                baseX + 100,
+                baseY + height + 2.5f,
+                10,
+                new Color(255, 255, 255),
+                Alignment.CENTER,
+                ResourceManager.FontResources.regular
+        );*/
 
         for (Module mod : sortedModules) {
             String moduleName = mod.getName();
@@ -95,7 +111,8 @@ public class Hud extends Module {
                 yPosition += mc.textRenderer.fontHeight + 3;
             }
         }
-        DrawUtil.end();
+        //DrawUtil.end();
+        matrices.pop();
     }
 }
 

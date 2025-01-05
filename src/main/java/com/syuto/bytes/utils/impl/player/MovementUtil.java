@@ -3,10 +3,9 @@ package com.syuto.bytes.utils.impl.player;
 import static com.syuto.bytes.Byte.mc;
 
 public class MovementUtil {
-    public static double[] setSpeed(double speed) {
+    public static void setSpeed(double speed) {
         double dir = direction();
-
-        return new double[] {-Math.sin(dir) * speed, Math.cos(dir) * speed};
+        mc.player.setVelocity(-Math.sin(dir) * speed, mc.player.getVelocity().y, Math.cos(dir) * speed);
     }
 
     public static float direction() {
@@ -30,5 +29,10 @@ public class MovementUtil {
             rotationYaw += 90 * forward;
         }
         return (float) Math.toRadians(rotationYaw);
+    }
+
+
+    public static boolean isMoving() {
+        return mc.player.getMovementSpeed() > 0;
     }
 }
