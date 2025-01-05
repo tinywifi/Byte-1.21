@@ -5,6 +5,7 @@ import static com.syuto.bytes.Byte.mc;
 public class MovementUtil {
     public static double[] setSpeed(double speed) {
         double dir = direction();
+
         return new double[] {-Math.sin(dir) * speed, Math.cos(dir) * speed};
     }
 

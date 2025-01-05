@@ -9,6 +9,8 @@ import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
 import dev.blend.util.render.Alignment;
 import dev.blend.util.render.DrawUtil;
+import dev.blend.util.render.Gradient;
+import dev.blend.util.render.ResourceManager;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Formatting;
@@ -57,19 +59,19 @@ public class Hud extends Module {
         int screenHeight = mc.getWindow().getScaledHeight();
         int yPosition = 1;
 
+
         DrawUtil.begin();
-        mc.textRenderer.draw(
-                "</byte>",
-                5,
-                5,
-                cyan.getRGB(),
-                true,
-                matrix,
-                mc.getBufferBuilders().getEntityVertexConsumers(),
-                TextRenderer.TextLayerType.NORMAL,
-                0,
-                255
-        );
+
+
+
+        int width = 200;
+        int height = 20;
+        int baseX = 5;
+        int baseY = 5;
+
+
+        RenderUtils.drawRect(event, baseX,baseY,width,height, new Color(60, 60, 60).getRGB());
+
 
         for (Module mod : sortedModules) {
             String moduleName = mod.getName();
@@ -80,7 +82,6 @@ public class Hud extends Module {
 
                 int textWidth = mc.textRenderer.getWidth(displayText);
                 int xPosition = screenWidth - textWidth - 2;
-
 
                 RenderUtils.drawTextWithBackground(
                         matrix,

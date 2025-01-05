@@ -10,7 +10,7 @@ import static com.syuto.bytes.Byte.mc;
 public class PlayerUtil {
 
 
-    public static double getBiblicallyAccurateDistanceToPlayer(Entity target) {
+    public static double getBiblicallyAccurateDistanceToEntity(Entity target) {
         return mc.player.getEyePos().distanceTo(getClosestPoint(target));
     }
 
@@ -22,7 +22,7 @@ public class PlayerUtil {
 
         Vec3d closest = null;
         double closestDist = Double.MAX_VALUE;
-        double stepSize = 0.1d;
+        double stepSize = 0.05d;
         for (double dX = 0; dX <= s.x; dX += stepSize) {
             for (double dY = 0; dY <= s.y; dY += stepSize) {
                 for (double dZ = 0; dZ <= s.z; dZ += stepSize) {

@@ -87,15 +87,11 @@ public class Test extends Module {
         }
 
         if (rots != null) {
-            float yaw = Math.clamp(rots[0] % 360.0F, -360.0F, 360.0F);
+            float yaw = yaw(); //Math.clamp(yaw() % 360.0F, -360.0F, 360.0F);
             float pitch = Math.clamp(rots[1] % 360.0F, -90.0F, 90.0F);
 
             event.yaw = yaw;
             event.pitch = pitch;
-            if (facing == Direction.UP) {
-                event.yaw = yaw;
-                event.pitch = pitch;
-            }
 
             //float spin = -(System.currentTimeMillis() / 2 % 360);
             mc.player.bodyYaw = yaw;
@@ -106,8 +102,9 @@ public class Test extends Module {
         Vec3d motion = mc.player.getVelocity();
         int simpleY = (int) Math.round((event.posY % 1.0D) * 100.0D);
 
-        ChatUtils.print(simpleY + " " + airTicks);
-        if (mc.options.jumpKey.isPressed()) {
+        //
+        // ChatUtils.print(simpleY + " " + airTicks);
+        /*if (mc.options.jumpKey.isPressed()) {
             switch(simpleY) {
                 case 0 -> {
                     mc.player.setVelocity(motion.x, 0.42f, motion.z);
@@ -115,7 +112,7 @@ public class Test extends Module {
                         event.posY += 1E-14;
                         mc.player.setVelocity(motion.x, 0, motion.z);
                         airTicks = -1;
-                        ChatUtils.print("bye " + airTicks);
+                        //ChatUtils.print("bye " + airTicks);
                     }
                 }
                 case 42 -> {
@@ -126,7 +123,7 @@ public class Test extends Module {
                 }
 
             }
-        }
+        }*/
 
         targetBlock = null;
     }
@@ -147,7 +144,7 @@ public class Test extends Module {
 
         facing = Direction.byId(blockFacing);
 
-        //if (facing == Direction.UP) return;
+        if (facing == Direction.UP) return;
 
 
         targetBlock = new BlockPos(blockX, blockY, blockZ);
@@ -296,6 +293,15 @@ public class Test extends Module {
         }
         return true;
     }
+
+
+    public float yaw() {
+        Vec3d motion = mc.player.getVelocity();
+        double radians = Math.atan2(motion.z, motion.x);
+        float yaw = (float) Math.toDegrees(radians);
+        return yaw + 30;
+    }
+
 
 
 }
