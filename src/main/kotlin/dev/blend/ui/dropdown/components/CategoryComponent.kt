@@ -20,7 +20,7 @@ class CategoryComponent(
 ) {
 
     val components = mutableListOf<ModuleComponent>()
-    private val openAnimation = BackOutAnimation()
+    val openAnimation = BackOutAnimation()
     private val expandAnimation = SineOutAnimation()
     private val expandToggleAnimation = SineOutAnimation()
     private val initialHeight = height;
@@ -45,7 +45,7 @@ class CategoryComponent(
     override fun render(mouseX: Int, mouseY: Int) {
         DrawUtil.save()
         DrawUtil.translate(mc.window.scaledWidth / 2.0, mc.window.scaledHeight / 2.0)
-        DrawUtil.scale(openAnimation.get())
+        DrawUtil.scale(max(0.0, openAnimation.get())) // max needed to prevent back out animation from going negative
         DrawUtil.translate(mc.window.scaledWidth / -2.0, mc.window.scaledHeight / -2.0)
         DrawUtil.scissor(x, y, width, height)
         DrawUtil.roundedRect(x, y, width, height, 5, ThemeHandler.getBackground())
@@ -78,7 +78,13 @@ class CategoryComponent(
         // also use max to make sure animation doesn't go superfast
         // that is animate with a duration lesser than 100ms
         expandAnimation.duration = 200 * max(1.0, (veryRealHeight / 150))
-        openAnimation.animate(1.0)
+        openAnimation.animate(
+            if (DropdownClickGUI.requestsClose) {
+                0.0
+            } else {
+                1.0
+            }
+        )
         openAnimation.duration = 200.0 + (50.0 * DropdownClickGUI.components.indexOf(this))
         expandAnimation.animate(
             if (expanded) veryRealHeight else initialHeight

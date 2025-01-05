@@ -13,6 +13,7 @@ import net.minecraft.text.Text
 object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
 
     val components = mutableListOf<CategoryComponent>()
+    var requestsClose = false
 
     init {
         var x = 20.0
@@ -29,6 +30,7 @@ object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
         components.forEach{
             it.init()
         }
+        requestsClose = false
     }
 
     override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
@@ -39,6 +41,11 @@ object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
         }
         DrawUtil.end()
         context?.matrices?.pop()
+        // any / all
+        if (requestsClose && components.any { it.openAnimation.finished }) {
+            requestsClose = false
+            ModuleManager.getModule(ClickGUIModule::class.java)?.setEnabled(false)
+        }
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
@@ -74,7 +81,8 @@ object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
         components.forEach{
             it.close()
         }
-        ModuleManager.getModule(ClickGUIModule::class.java)?.setEnabled(false)
+//        ModuleManager.getModule(ClickGUIModule::class.java)?.setEnabled(false)
+        requestsClose = true
     }
 
     override fun shouldPause(): Boolean {
