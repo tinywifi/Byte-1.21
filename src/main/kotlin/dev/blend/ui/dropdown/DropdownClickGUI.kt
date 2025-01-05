@@ -32,11 +32,13 @@ object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
     }
 
     override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
+        context?.matrices?.push()
         DrawUtil.begin()
         components.forEach {
             it.render(mouseX, mouseY)
         }
         DrawUtil.end()
+        context?.matrices?.pop()
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
