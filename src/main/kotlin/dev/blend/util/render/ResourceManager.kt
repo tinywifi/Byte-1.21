@@ -5,6 +5,7 @@ object ResourceManager {
     @JvmStatic
     fun init() {
         FontResources.init()
+        ImageResources.init()
     }
 
     object FontResources {
@@ -13,6 +14,12 @@ object ResourceManager {
         fun init() {
             regular = FontResource("regular")
             ubuntu = FontResource("ubuntu")
+        }
+    }
+
+    object ImageResources {
+        fun init() {
+
         }
     }
 

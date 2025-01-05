@@ -16,3 +16,9 @@ class FontResource(
         NanoVG.nvgCreateFontMem(DrawUtil.context, fontName, resource, false)
     }
 }
+
+class ImageResource(
+    imageName: String,
+) {
+    val identifier = NanoVG.nvgCreateImageMem(DrawUtil.context, NanoVG.NVG_IMAGE_NEAREST, MiscUtil.getResourceAsByteBuffer("images/$imageName.png", 512))
+}

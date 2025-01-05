@@ -3,6 +3,7 @@ package dev.blend.util.render
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import dev.blend.util.IAccessor
+import kotlinx.io.IOException
 import org.lwjgl.nanovg.NVGColor
 import org.lwjgl.nanovg.NVGPaint
 import org.lwjgl.nanovg.NanoVG.*
@@ -10,7 +11,6 @@ import org.lwjgl.nanovg.NanoVGGL3
 import org.lwjgl.system.MemoryStack
 import java.awt.Color
 import java.lang.IllegalArgumentException
-import java.nio.ByteBuffer
 
 object DrawUtil: IAccessor {
 
@@ -22,7 +22,11 @@ object DrawUtil: IAccessor {
         if (context == -1L) {
             throw IllegalStateException("NanoVG Context could not be created.")
         }
-        ResourceManager.init()
+        try {
+            ResourceManager.init()
+        } catch (ioe: IOException) {
+            ioe.printStackTrace()
+        }
     }
 
     @JvmStatic
