@@ -1,9 +1,11 @@
 package dev.blend.ui.dropdown.components
 
+import com.syuto.bytes.Byte.mc
 import com.syuto.bytes.module.ModuleManager
 import com.syuto.bytes.module.api.Category
 import dev.blend.ThemeHandler
 import dev.blend.ui.AbstractUIComponent
+import dev.blend.ui.dropdown.DropdownClickGUI
 import dev.blend.util.animations.*
 import dev.blend.util.render.Alignment
 import dev.blend.util.render.DrawUtil
@@ -18,6 +20,7 @@ class CategoryComponent(
 ) {
 
     val components = mutableListOf<ModuleComponent>()
+    private val openAnimation = BackOutAnimation()
     private val expandAnimation = SineOutAnimation()
     private val expandToggleAnimation = SineOutAnimation()
     private val initialHeight = height;
@@ -32,6 +35,8 @@ class CategoryComponent(
     }
 
     override fun init() {
+        openAnimation.set(0.5)
+        openAnimation.reset()
         components.forEach {
             it.init()
         }
@@ -39,6 +44,9 @@ class CategoryComponent(
 
     override fun render(mouseX: Int, mouseY: Int) {
         DrawUtil.save()
+        DrawUtil.translate(mc.window.scaledWidth / 2.0, mc.window.scaledHeight / 2.0)
+        DrawUtil.scale(openAnimation.get())
+        DrawUtil.translate(mc.window.scaledWidth / -2.0, mc.window.scaledHeight / -2.0)
         DrawUtil.scissor(x, y, width, height)
         DrawUtil.roundedRect(x, y, width, height, 5, ThemeHandler.getBackground())
         DrawUtil.drawString(category.properName, x + (width / 2), y + (initialHeight / 2), 12, ThemeHandler.getTextColor(), Alignment.CENTER)
@@ -57,6 +65,7 @@ class CategoryComponent(
                 }
         }
         DrawUtil.resetScissor()
+        DrawUtil.resetTranslate()
         DrawUtil.restore()
         if (canAnimateExpansion()) {
             this.height = expandAnimation.get()
@@ -69,6 +78,8 @@ class CategoryComponent(
         // also use max to make sure animation doesn't go superfast
         // that is animate with a duration lesser than 100ms
         expandAnimation.duration = 200 * max(1.0, (veryRealHeight / 150))
+        openAnimation.animate(1.0)
+        openAnimation.duration = 200.0 + (50.0 * DropdownClickGUI.components.indexOf(this))
         expandAnimation.animate(
             if (expanded) veryRealHeight else initialHeight
         )

@@ -12,10 +12,7 @@ import net.minecraft.text.Text
 
 object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
 
-    private val components = mutableListOf<CategoryComponent>()
-    private val openAnimation = BackOutAnimation()
-    private var opened = false
-    private var shouldClose = false
+    val components = mutableListOf<CategoryComponent>()
 
     init {
         var x = 20.0
@@ -32,32 +29,14 @@ object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
         components.forEach{
             it.init()
         }
-        openAnimation.set(-500.0)
-        opened = true
-        shouldClose = false
     }
 
     override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
         DrawUtil.begin()
-        DrawUtil.translate(0, openAnimation.get()) {
-            components.forEach {
-                it.render(mouseX, mouseY)
-            }
+        components.forEach {
+            it.render(mouseX, mouseY)
         }
         DrawUtil.end()
-        openAnimation.animate(
-            if (opened) {
-                0.0
-            } else if (shouldClose) {
-                500.0
-            } else {
-                -500.0
-            }
-        )
-        openAnimation.duration = 400
-        if (shouldClose && openAnimation.finished) {
-            ModuleManager.getModule(ClickGUIModule::class.java)?.setEnabled(false)
-        }
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
@@ -93,8 +72,7 @@ object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
         components.forEach{
             it.close()
         }
-        opened = false
-        shouldClose = true
+        ModuleManager.getModule(ClickGUIModule::class.java)?.setEnabled(false)
     }
 
     override fun shouldPause(): Boolean {

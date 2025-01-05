@@ -15,7 +15,6 @@ import java.nio.ByteBuffer
 object DrawUtil: IAccessor {
 
     var context = -1L
-    private lateinit var regularFont: ByteBuffer
 
     @JvmStatic
     fun initialize() {
@@ -48,6 +47,13 @@ object DrawUtil: IAccessor {
         restore()
     }
 
+    inline fun scale(x: Number, y: Number, content: () -> Unit) {
+        save()
+        scale(x, y)
+        content()
+        restore()
+    }
+
     @JvmStatic
     fun save() = nvgSave(context)
     @JvmStatic
@@ -71,14 +77,6 @@ object DrawUtil: IAccessor {
     fun resetScissor() = nvgResetScissor(context)
     @JvmStatic
     fun intersectScissor(x: Number, y:Number, width:Number, height: Number) = nvgIntersectScissor(context, x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
-    @JvmStatic
-    fun beginPath() = nvgBeginPath(context)
-    @JvmStatic
-    fun pathWindingCCW() = nvgPathWinding(context, NVG_CCW)
-    @JvmStatic
-    fun fill() = nvgFill(context)
-    @JvmStatic
-    fun nvgRoundedRect(x: Number, y: Number, width: Number, height: Number, radius: Number) = nvgRoundedRect(context, x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), radius.toFloat())
 
     // Shapes.
     @JvmStatic
@@ -329,8 +327,8 @@ object DrawUtil: IAccessor {
     private fun preRender() {
         RenderSystem.enableBlend()
         RenderSystem.defaultBlendFunc()
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE)
-        RenderSystem.disableDepthTest()
+//        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE)
+//        RenderSystem.disableDepthTest()
 //        RenderSystem.depthFunc(GL11.GL_LESS)
 //        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT)
     }
@@ -338,9 +336,10 @@ object DrawUtil: IAccessor {
         RenderSystem.disableCull()
         RenderSystem.disableDepthTest()
         RenderSystem.enableBlend()
-        RenderSystem.defaultBlendFunc()
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
+//        RenderSystem.defaultBlendFunc()
+//        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
         RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ZERO, GlStateManager.DstFactor.ONE)
+        RenderSystem.defaultBlendFunc()
     }
     private fun alignX(x: Number, width: Number, alignment: Alignment): Float {
         return when (alignment) {
