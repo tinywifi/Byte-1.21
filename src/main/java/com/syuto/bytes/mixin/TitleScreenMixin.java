@@ -54,6 +54,6 @@ public class TitleScreenMixin {
             )
     )
     public void renderr(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        Snow.renderSnowflakes(context);
+        //Snow.renderSnowflakes(context);
     }
 }
