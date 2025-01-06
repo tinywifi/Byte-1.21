@@ -28,7 +28,6 @@ public abstract class RenderMixin {
     void renderTick(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         RenderTickEvent e = new RenderTickEvent(tickCounter.getTickDelta(true), context);
         Byte.INSTANCE.eventBus.post(e);
-
     }
 
     @Inject(at = @At("HEAD"), method = "renderHeldItemTooltip")

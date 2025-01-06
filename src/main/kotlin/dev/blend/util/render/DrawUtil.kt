@@ -281,6 +281,11 @@ object DrawUtil: IAccessor {
         return width.toDouble()
     }
 
+    @JvmStatic
+    fun roundedImage(x: Number, y: Number, width: Number, height: Number, radius: Number, image: ImageResource) {
+
+    }
+
     // custom shit
 
     /**
@@ -337,12 +342,12 @@ object DrawUtil: IAccessor {
 //        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT)
     }
     private fun postRender() {
-        RenderSystem.disableCull()
-        RenderSystem.disableDepthTest()
+//        RenderSystem.disableCull()
+//        RenderSystem.disableDepthTest()
         RenderSystem.enableBlend()
 //        RenderSystem.defaultBlendFunc()
 //        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
-        RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ZERO, GlStateManager.DstFactor.ONE)
+//        RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ZERO, GlStateManager.DstFactor.ONE)
         RenderSystem.defaultBlendFunc()
     }
     private fun alignX(x: Number, width: Number, alignment: Alignment): Float {
