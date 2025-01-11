@@ -1,5 +1,6 @@
 package dev.blend.ui.dropdown
 
+import com.syuto.bytes.Byte.mc
 import com.syuto.bytes.module.ModuleManager
 import com.syuto.bytes.module.api.Category
 import com.syuto.bytes.module.impl.render.ClickGUIModule
@@ -12,6 +13,7 @@ import net.minecraft.text.Text
 
 object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
 
+    private val openAnimation = BackOutAnimation()
     val components = mutableListOf<CategoryComponent>()
     var requestsClose = false
 
@@ -27,22 +29,39 @@ object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
     }
 
     override fun init() {
+        requestsClose = false
+        openAnimation.set(0.5)
+        openAnimation.reset()
         components.forEach{
             it.init()
         }
-        requestsClose = false
     }
 
     override fun render(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
         context?.matrices?.push()
         DrawUtil.begin()
+//        DrawUtil.save()
+//        DrawUtil.translate(
+//            (mc.window.scaledWidth / 2.0) * (1.0 - openAnimation.get()),
+//            (mc.window.scaledHeight / 2.0) * (1.0 - openAnimation.get())
+//        )
+//        DrawUtil.scale(openAnimation.get(), openAnimation.get()) // max needed to prevent back out animation from going negative
         components.forEach {
             it.render(mouseX, mouseY)
         }
+//        DrawUtil.resetTranslate()
+//        DrawUtil.restore()
         DrawUtil.end()
         context?.matrices?.pop()
+        openAnimation.animate(
+            if (requestsClose) {
+                0.0
+            } else {
+                1.0
+            }
+        )
         // any / all
-        if (requestsClose && components.any { it.openAnimation.finished }) {
+        if (requestsClose && openAnimation.finished) {
             requestsClose = false
             ModuleManager.getModule(ClickGUIModule::class.java)?.setEnabled(false)
         }

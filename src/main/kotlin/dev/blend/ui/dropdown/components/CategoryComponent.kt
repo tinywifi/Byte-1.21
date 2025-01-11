@@ -44,9 +44,12 @@ class CategoryComponent(
 
     override fun render(mouseX: Int, mouseY: Int) {
         DrawUtil.save()
-        DrawUtil.translate(mc.window.scaledWidth / 2.0, mc.window.scaledHeight / 2.0)
-        DrawUtil.scale(max(0.0, openAnimation.get())) // max needed to prevent back out animation from going negative
-        DrawUtil.translate(mc.window.scaledWidth / -2.0, mc.window.scaledHeight / -2.0)
+        DrawUtil.translate(
+//            (mc.window.scaledWidth / 2.0) * (1.0 - openAnimation.get()),
+            0,
+            (mc.window.scaledHeight) * (1.0 - openAnimation.get())
+        )
+//        DrawUtil.scale(openAnimation.get()) // max needed to prevent back out animation from going negative
         DrawUtil.scissor(x, y, width, height)
         DrawUtil.roundedRect(x, y, width, height, 5, ThemeHandler.getBackground())
         DrawUtil.drawString(category.properName, x + (width / 2), y + (initialHeight / 2), 12, ThemeHandler.getTextColor(), Alignment.CENTER)

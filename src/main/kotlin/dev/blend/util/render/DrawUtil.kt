@@ -8,6 +8,7 @@ import org.lwjgl.nanovg.NVGColor
 import org.lwjgl.nanovg.NVGPaint
 import org.lwjgl.nanovg.NanoVG.*
 import org.lwjgl.nanovg.NanoVGGL3
+import org.lwjgl.opengl.GL11
 import org.lwjgl.system.MemoryStack
 import java.awt.Color
 import java.lang.IllegalArgumentException
@@ -335,20 +336,18 @@ object DrawUtil: IAccessor {
 
     private fun preRender() {
         RenderSystem.enableBlend()
-        RenderSystem.defaultBlendFunc()
-//        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE)
-//        RenderSystem.disableDepthTest()
-//        RenderSystem.depthFunc(GL11.GL_LESS)
-//        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT)
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE)
+        RenderSystem.disableDepthTest()
+//        RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT)
     }
     private fun postRender() {
-//        RenderSystem.disableCull()
-//        RenderSystem.disableDepthTest()
+        RenderSystem.disableCull()
+        RenderSystem.disableDepthTest()
         RenderSystem.enableBlend()
-//        RenderSystem.defaultBlendFunc()
+        RenderSystem.defaultBlendFunc()
 //        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
 //        RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ZERO, GlStateManager.DstFactor.ONE)
-        RenderSystem.defaultBlendFunc()
+//        RenderSystem.defaultBlendFunc()
     }
     private fun alignX(x: Number, width: Number, alignment: Alignment): Float {
         return when (alignment) {
