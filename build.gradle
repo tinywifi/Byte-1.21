@@ -15,6 +15,10 @@ base {
 
 repositories {
 	mavenCentral()
+	maven {
+		name = "LWJGL snapshots"
+		url = "https://oss.sonatype.org/content/repositories/snapshots/"
+	}
 }
 
 dependencies {

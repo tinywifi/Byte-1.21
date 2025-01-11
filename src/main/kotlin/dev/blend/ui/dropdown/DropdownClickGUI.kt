@@ -61,7 +61,7 @@ object DropdownClickGUI: Screen(Text.of("Dropdown Click GUI")) {
             }
         )
         // any / all
-        if (requestsClose && openAnimation.finished) {
+        if (requestsClose && components.any { it.openAnimation.finished }) {
             requestsClose = false
             ModuleManager.getModule(ClickGUIModule::class.java)?.setEnabled(false)
         }
