@@ -342,10 +342,11 @@ object DrawUtil: IAccessor {
 //        RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT)
     }
     private fun postRender() {
-//        RenderSystem.disableCull()
-//        RenderSystem.disableDepthTest()
-        RenderSystem.enableBlend()
-        RenderSystem.defaultBlendFunc()
+        RenderSystem.disableCull()
+        RenderSystem.enableDepthTest()
+        RenderSystem.disableBlend()
+//        RenderSystem.enableBlend()
+//        RenderSystem.defaultBlendFunc()
 //        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
 //        RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ZERO, GlStateManager.DstFactor.ONE)
 //        RenderSystem.defaultBlendFunc()
