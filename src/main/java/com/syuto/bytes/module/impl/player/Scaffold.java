@@ -5,7 +5,9 @@ import com.syuto.bytes.eventbus.impl.PreMotionEvent;
 import com.syuto.bytes.eventbus.impl.PreUpdateEvent;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
+import com.syuto.bytes.utils.impl.client.ChatUtils;
 import com.syuto.bytes.utils.impl.player.MovementUtil;
+import com.syuto.bytes.utils.impl.player.PlayerUtil;
 import com.syuto.bytes.utils.impl.rotation.RotationUtils;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -79,21 +81,29 @@ public class Scaffold extends Module {
         }
 
         if (targetBlock != null) {
-            rots = RotationUtils.getRotationsToBlock(mc.player.getEyePos(), targetBlock, facing);
+            rots = RotationUtils.getBlockRotations(targetBlock, facing);
         }
 
         if (rots != null) {
+
+
             if (last == null) {
                 last = rots;
             }
 
-            event.yaw = yaw();
+            event.yaw = rots[0];
             event.pitch = rots[1];
 
-            mc.player.headYaw = (yaw() - last[0]) + last[0];
-            mc.player.bodyYaw = (yaw() - last[0]) + yaw();
+            float deltaYaw = MathHelper.wrapDegrees(event.yaw - mc.player.bodyYaw);
+            mc.player.bodyYaw += deltaYaw * 0.3F;
+            deltaYaw = MathHelper.wrapDegrees(event.yaw - mc.player.bodyYaw);
+            if (Math.abs(deltaYaw) > 50.0F) {
+                mc.player.bodyYaw += deltaYaw - Math.signum(deltaYaw) * 50.0F;
+            }
 
-            last = new float[]{yaw(), 0};
+            mc.player.headYaw = event.yaw;
+
+            last = new float[]{event.yaw, 0};
         }
 
 
@@ -106,20 +116,20 @@ public class Scaffold extends Module {
             switch(simpleY) {
                 case 0 -> {
                     mc.player.setVelocity(motion.x, 0.42f, motion.z);
-                    if (airTicks == 15) {
+                    if (airTicks == 6) {
                         event.posY += 1E-14;
-                        mc.player.setVelocity(motion.x, 0, motion.z);
+                        mc.player.setVelocity(motion.x, -10, motion.z);
                         airTicks = -1;
                         //ChatUtils.print("bye " + airTicks);
                     }
+                    MovementUtil.setSpeed(0.29);
                 }
                 case 42 -> {
                     mc.player.setVelocity(motion.x, 0.33f, motion.z);
-                    MovementUtil.setSpeed(0.28);
+                    MovementUtil.setSpeed(0.29);
                 }
                 case 75 -> {
                     mc.player.setVelocity(motion.x, 0.25f, motion.z);
-                    MovementUtil.setSpeed(0.28);
                 }
 
             }
@@ -143,6 +153,7 @@ public class Scaffold extends Module {
         int blockFacing = blockInfo[3];
 
         facing = Direction.byId(blockFacing);
+        
 
         targetBlock = new BlockPos(blockX, blockY, blockZ);
 
@@ -243,16 +254,15 @@ public class Scaffold extends Module {
     public float[] getBlockRotations(BlockPos blockPos, Direction facing) {
         double d = blockPos.getX() + 0.5 - mc.player.getX() + facing.getOffsetX() * 0.5;
         double d2 = blockPos.getZ() + 0.5 - mc.player.getZ() + facing.getOffsetZ() * 0.5;
-        double d3 = mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()) - blockPos.getY() - facing.getOffsetY() * 0.5;
+        double d3 = mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()) - blockPos.getY() - facing.getOffsetY() * 0.75;
         double d4 = Math.sqrt(d * d + d2 * d2);
         float yaw = (float) (Math.atan2(d2, d) * 180.0 / Math.PI) - 90.0f;
         float pitch = (float) (Math.atan2(d3, d4) * 180.0 / Math.PI);
-        if (facing == Direction.UP || facing == Direction.DOWN) {
-            yaw = getDirection() + 180;
-        }
+
         yaw = MathHelper.wrapDegrees(yaw);
         return new float[]{yaw, pitch};
     }
+
 
 
     private int getBlockSlot() {

@@ -3,16 +3,18 @@ package com.syuto.bytes.utils.impl.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.syuto.bytes.eventbus.impl.RenderTickEvent;
 import com.syuto.bytes.eventbus.impl.RenderWorldEvent;
+import net.fabricmc.fabric.api.renderer.v1.Renderer;
+import net.fabricmc.fabric.impl.renderer.RendererManager;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.*;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -27,6 +29,71 @@ public class RenderUtils {
     private static final Color red = Color.red;
     private static final Color orange = Color.orange;
     private static final Color white = Color.white;
+
+    public static final int[] lastViewport = new int[4];
+    public static final Matrix4f lastProjMat = new Matrix4f();
+    public static final Matrix4f lastModMat = new Matrix4f();
+    public static final Matrix4f lastWorldSpaceMatrix = new Matrix4f();
+
+
+    public static void renderBlock(BlockPos pos, RenderWorldEvent event, float delta) {
+        Box box = new Box(
+                pos.getX(), pos.getY(), pos.getZ(),
+                pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1
+        );
+
+        float cameraX = (float) mc.gameRenderer.getCamera().getPos().x;
+        float cameraY = (float) mc.gameRenderer.getCamera().getPos().y;
+        float cameraZ = (float) mc.gameRenderer.getCamera().getPos().z;
+
+        float minX = (float) box.minX - cameraX;
+        float maxX = (float) box.maxX - cameraX;
+        float minY = (float) box.minY - cameraY;
+        float maxY = (float) box.maxY - cameraY;
+        float minZ = (float) box.minZ - cameraZ;
+        float maxZ = (float) box.maxZ - cameraZ;
+
+        BufferBuilder vb = getBufferBuilder(event.matrixStack, VertexFormat.DrawMode.QUADS);
+        preRender();
+
+        MatrixStack matrixStack = event.matrixStack;
+        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
+
+        int r = 255, g = 255, b = 255, a = 75;
+
+        vb.vertex(matrix, minX, minY, minZ).color(r, g, b, a);
+        vb.vertex(matrix, maxX, minY, minZ).color(r, g, b, a);
+        vb.vertex(matrix, maxX, minY, maxZ).color(r, g, b, a);
+        vb.vertex(matrix, minX, minY, maxZ).color(r, g, b, a);
+
+        vb.vertex(matrix, minX, maxY, minZ).color(r, g, b, a);
+        vb.vertex(matrix, maxX, maxY, minZ).color(r, g, b, a);
+        vb.vertex(matrix, maxX, maxY, maxZ).color(r, g, b, a);
+        vb.vertex(matrix, minX, maxY, maxZ).color(r, g, b, a);
+
+        vb.vertex(matrix, minX, minY, minZ).color(r, g, b, a);
+        vb.vertex(matrix, maxX, minY, minZ).color(r, g, b, a);
+        vb.vertex(matrix, maxX, maxY, minZ).color(r, g, b, a);
+        vb.vertex(matrix, minX, maxY, minZ).color(r, g, b, a);
+
+        vb.vertex(matrix, minX, minY, maxZ).color(r, g, b, a);
+        vb.vertex(matrix, maxX, minY, maxZ).color(r, g, b, a);
+        vb.vertex(matrix, maxX, maxY, maxZ).color(r, g, b, a);
+        vb.vertex(matrix, minX, maxY, maxZ).color(r, g, b, a);
+
+        vb.vertex(matrix, minX, minY, minZ).color(r, g, b, a);
+        vb.vertex(matrix, minX, minY, maxZ).color(r, g, b, a);
+        vb.vertex(matrix, minX, maxY, maxZ).color(r, g, b, a);
+        vb.vertex(matrix, minX, maxY, minZ).color(r, g, b, a);
+
+        vb.vertex(matrix, maxX, minY, minZ).color(r, g, b, a);
+        vb.vertex(matrix, maxX, minY, maxZ).color(r, g, b, a);
+        vb.vertex(matrix, maxX, maxY, maxZ).color(r, g, b, a);
+        vb.vertex(matrix, maxX, maxY, minZ).color(r, g, b, a);
+
+        postRender(vb, matrixStack);
+    }
+
 
     public static void renderBox(Entity e, RenderWorldEvent event, float delta) {
         float interpolatedX = (float) (e.lastRenderX + (e.getX() - e.lastRenderX) * delta - mc.gameRenderer.getCamera().getPos().x);
@@ -149,7 +216,7 @@ public class RenderUtils {
                 adjustedX,
                 adjustedY,
                 color,
-                true,
+                false,
                 matrix,
                 mc.getBufferBuilders().getEntityVertexConsumers(),
                 TextRenderer.TextLayerType.NORMAL,
@@ -175,6 +242,30 @@ public class RenderUtils {
         bufferBuilder.vertex(matrix, right, bottom,0.0f).color(f, f1, f2, f3);
         bufferBuilder.vertex(matrix, right, top,0.0f).color(f, f1, f2, f3);
         bufferBuilder.vertex(matrix, left, top,0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, left, bottom,0.0f).color(f, f1, f2, f3);
+
+        postRender(bufferBuilder, matrixStack);
+    }
+
+
+    public static void drawRectOutline(RenderTickEvent event, float left, float top, float right, float bottom, int color) {
+        float f3 = (color >> 24 & 255) / 255.0F;
+        float f = (color >> 16 & 255) / 255.0F;
+        float f1 = (color >> 8 & 255) / 255.0F;
+        float f2 = (color & 255) / 255.0F;
+        MatrixStack matrixStack = event.context.getMatrices();
+
+        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.DEBUG_LINE_STRIP);
+
+        preRender();
+
+        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
+
+        bufferBuilder.vertex(matrix, left, bottom,0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, right, bottom,0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, right, top,0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, left, top,0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, left, bottom,0.0f).color(f, f1, f2, f3);
 
         postRender(bufferBuilder, matrixStack);
     }
@@ -190,7 +281,6 @@ public class RenderUtils {
         MatrixStack matrixStack = event.getMatrices();
 
         BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.QUADS);
-
         preRender();
 
         Matrix4f matrix = matrixStack.peek().getPositionMatrix();
@@ -203,6 +293,25 @@ public class RenderUtils {
         postRender(bufferBuilder, matrixStack);
     }
 
+    public static Vec3d worldToScreen(Vec3d pos) {
+        Camera camera = mc.getEntityRenderDispatcher().camera;
+        int displayHeight = mc.getWindow().getHeight();
+        Vector3f target = new Vector3f();
+
+        double deltaX = pos.x - camera.getPos().x;
+        double deltaY = pos.y - camera.getPos().y;
+        double deltaZ = pos.z - camera.getPos().z;
+
+
+        Vector4f transformedCoordinates = new Vector4f((float) deltaX, (float) deltaY, (float) deltaZ, 1.0f).mul(lastWorldSpaceMatrix);
+
+        Matrix4f matrixProj = new Matrix4f(lastProjMat);
+        Matrix4f matrixModel = new Matrix4f(lastModMat);
+
+        matrixProj.mul(matrixModel).project(transformedCoordinates.x(), transformedCoordinates.y(), transformedCoordinates.z(), lastViewport, target);
+
+        return new Vec3d(target.x / mc.getWindow().getScaleFactor(), (displayHeight - target.y) / mc.getWindow().getScaleFactor(), target.z);
+    }
 
     public static void drawCircle(DrawContext event, float centerX, float centerY, float radius, int color) {
         float alpha = (color >> 24 & 255) / 255.0F;

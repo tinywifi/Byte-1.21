@@ -27,7 +27,8 @@ public abstract class MinecraftClientMixin {
             method = "<init>",
             at = @At(
                     value = "NEW",
-                    target = "(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/render/item/HeldItemRenderer;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/client/render/BufferBuilderStorage;)Lnet/minecraft/client/render/GameRenderer;"
+                    target = "(Lnet/minecraft/client/MinecraftClient;)Lnet/minecraft/client/gui/hud/InGameHud;",
+                    shift = At.Shift.AFTER
             )
     )
     private void initializeNanoVG(RunArgs args, CallbackInfo ci) {

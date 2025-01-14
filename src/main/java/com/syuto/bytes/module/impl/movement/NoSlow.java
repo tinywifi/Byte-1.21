@@ -8,8 +8,16 @@ import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.setting.impl.ModeSetting;
 import com.syuto.bytes.utils.impl.client.ChatUtils;
+import net.fabricmc.fabric.api.entity.event.v1.EntityElytraEvents;
 import net.minecraft.item.SwordItem;
+import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.packet.c2s.common.CommonPongC2SPacket;
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.c2s.handshake.ConnectionIntent;
+import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.Hand;
 
 public class NoSlow extends Module {
@@ -30,8 +38,11 @@ public class NoSlow extends Module {
     @EventHandler
     void onPreMotion(PreMotionEvent event) {
         if (mc.player.isUsingItem() && !(mc.player.getInventory().getStack(mc.player.getInventory().selectedSlot).getItem() instanceof SwordItem)) {
-            event.posY += 0.00000001;
-            ChatUtils.print("hi " + Math.random());
+            event.posY += 0.000001;
+
         }
     }
+
+    //grim  mc.interactionManager.clickSlot(mc.player.currentScreenHandler.syncId, 36, 1, SlotActionType.SWAP, mc.player);
 }
+

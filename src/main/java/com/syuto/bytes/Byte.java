@@ -32,6 +32,7 @@ public class Byte implements ModInitializer {
 
 
 	public Byte() {
+
 		eventBus = new EventBus();
 		commandManager = new CommandManager();
 		handlers = new Handlers();
@@ -54,4 +55,5 @@ public class Byte implements ModInitializer {
 
 		INSTANCE = this;
 	}
+
 }

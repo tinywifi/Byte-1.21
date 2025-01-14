@@ -31,9 +31,10 @@ public class TitleScreenMixin {
         int windowHeight = mc.getWindow().getScaledHeight();
 
         //drawImage(context, 0, 0, windowWidth, windowHeight);
-        //Byte.LOGGER.info("w {}, h {}", windowWidth, windowHeight);
+        //Byte.LOGGE R.info("w {}, h {}", windowWidth, windowHeight);
     }
 
+    @Unique
     private void drawImage(DrawContext context, int x, int y, int width, int height) {
         context.drawTexture(
                 RenderLayer::getGuiTextured,

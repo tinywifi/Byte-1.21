@@ -1,9 +1,11 @@
 package com.syuto.bytes.utils.impl.player;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RaycastContext;
 
 import static com.syuto.bytes.Byte.mc;
 
@@ -49,5 +51,12 @@ public class PlayerUtil {
 
     private static Vec3d getBoxMinPoint(Box box) {
         return new Vec3d(box.minX, box.minY, box.minZ);
+    }
+
+    public static HitResult raycast(float yaw, float pitch, double maxDistance, float tickDelta, boolean includeFluids) {
+        Vec3d vec3d = mc.player.getCameraPosVec(tickDelta);
+        Vec3d vec3d2 = mc.player.getRotationVector(pitch, yaw);
+        Vec3d vec3d3 = vec3d.add(vec3d2.x * maxDistance, vec3d2.y * maxDistance, vec3d2.z * maxDistance);
+        return mc.world.raycast(new RaycastContext(vec3d, vec3d3, RaycastContext.ShapeType.OUTLINE, includeFluids ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE, mc.player));
     }
 }

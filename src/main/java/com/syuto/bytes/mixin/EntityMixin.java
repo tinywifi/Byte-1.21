@@ -1,12 +1,16 @@
 package com.syuto.bytes.mixin;
 
 
+import com.syuto.bytes.eventbus.impl.PreMotionEvent;
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.impl.player.Scaffold;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import static com.syuto.bytes.Byte.mc;

@@ -59,8 +59,19 @@ public class RotationUtils {
         return new float[]{yaw, clampPitch(pitch)};
     }
 
+
+    public static float[] getBlockRotations(BlockPos blockPos, Direction facing) {
+        double d = blockPos.getX() + 0.5 - mc.player.getX() + facing.getOffsetX() * 0.5;
+        double d2 = blockPos.getZ() + 0.5 - mc.player.getZ() + facing.getOffsetZ() * 0.5;
+        double d3 = mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()) - blockPos.getY() - facing.getOffsetY() * 0.5;
+        double d4 = Math.sqrt(d * d + d2 * d2);
+        float yaw = (float) (Math.atan2(d2, d) * 180.0 / Math.PI) - 90.0f;
+        float pitch = (float) (Math.atan2(d3, d4) * 180.0 / Math.PI);
+
+        return new float[]{MathHelper.wrapDegrees(yaw), clampPitch(pitch)};
+    }
+
     private static float clampPitch(float pitch) {
         return MathHelper.clamp(pitch, -90.0F, 90.0F);
     }
-
 }
