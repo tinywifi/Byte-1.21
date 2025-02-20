@@ -3,8 +3,6 @@ package com.syuto.bytes.utils.impl.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.syuto.bytes.eventbus.impl.RenderTickEvent;
 import com.syuto.bytes.eventbus.impl.RenderWorldEvent;
-import net.fabricmc.fabric.api.renderer.v1.Renderer;
-import net.fabricmc.fabric.impl.renderer.RendererManager;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
@@ -15,7 +13,7 @@ import net.minecraft.util.math.*;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.*;
 
 import java.awt.*;
 
@@ -162,11 +160,10 @@ public class RenderUtils {
         float y = (float) (e.lastRenderY + (e.getY() - e.lastRenderY) * delta - mc.gameRenderer.getCamera().getPos().y);
         float z = (float) (e.lastRenderZ + (e.getZ() - e.lastRenderZ) * delta - mc.gameRenderer.getCamera().getPos().z);
 
-        BufferBuilder bufferBuilder = getBufferBuilder(event.matrixStack, VertexFormat.DrawMode.QUADS);
-
-        preRender();
-
         MatrixStack matrixStack = event.matrixStack;
+
+        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.QUADS);
+        preRender();
 
         matrixStack.translate(x, y - 0.2D, z);
         matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-mc.getCameraEntity().getYaw()));
@@ -209,7 +206,9 @@ public class RenderUtils {
         float right = x + textWidth + padding * 2;
         float bottom = y + textHeight + padding * 2;
 
-        drawRect(event, left, top, right, bottom, 0x80000000);
+
+
+        //drawRect(event, left, top, right, bottom, 0x80000000);
 
         mc.textRenderer.draw(
                 text,
@@ -225,62 +224,16 @@ public class RenderUtils {
         );
     }
 
-    public static void drawRect(RenderTickEvent event, float left, float top, float right, float bottom, int color) {
-        float f3 = (color >> 24 & 255) / 255.0F;
-        float f = (color >> 16 & 255) / 255.0F;
-        float f1 = (color >> 8 & 255) / 255.0F;
-        float f2 = (color & 255) / 255.0F;
-        MatrixStack matrixStack = event.context.getMatrices();
-
-        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.QUADS);
-
-        preRender();
-
-        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
-
-        bufferBuilder.vertex(matrix, left, bottom,0.0f).color(f, f1, f2, f3);
-        bufferBuilder.vertex(matrix, right, bottom,0.0f).color(f, f1, f2, f3);
-        bufferBuilder.vertex(matrix, right, top,0.0f).color(f, f1, f2, f3);
-        bufferBuilder.vertex(matrix, left, top,0.0f).color(f, f1, f2, f3);
-        bufferBuilder.vertex(matrix, left, bottom,0.0f).color(f, f1, f2, f3);
-
-        postRender(bufferBuilder, matrixStack);
-    }
-
-
-    public static void drawRectOutline(RenderTickEvent event, float left, float top, float right, float bottom, int color) {
-        float f3 = (color >> 24 & 255) / 255.0F;
-        float f = (color >> 16 & 255) / 255.0F;
-        float f1 = (color >> 8 & 255) / 255.0F;
-        float f2 = (color & 255) / 255.0F;
-        MatrixStack matrixStack = event.context.getMatrices();
-
-        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.DEBUG_LINE_STRIP);
-
-        preRender();
-
-        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
-
-        bufferBuilder.vertex(matrix, left, bottom,0.0f).color(f, f1, f2, f3);
-        bufferBuilder.vertex(matrix, right, bottom,0.0f).color(f, f1, f2, f3);
-        bufferBuilder.vertex(matrix, right, top,0.0f).color(f, f1, f2, f3);
-        bufferBuilder.vertex(matrix, left, top,0.0f).color(f, f1, f2, f3);
-        bufferBuilder.vertex(matrix, left, bottom,0.0f).color(f, f1, f2, f3);
-
-        postRender(bufferBuilder, matrixStack);
-    }
-
-
-
-
-    public static void drawRect(DrawContext event, float left, float top, float right, float bottom, int color) {
+    public static void drawRect2(DrawContext event, float left, float top, float right, float bottom, int color) {
         float f3 = (color >> 24 & 255) / 255.0F;
         float f = (color >> 16 & 255) / 255.0F;
         float f1 = (color >> 8 & 255) / 255.0F;
         float f2 = (color & 255) / 255.0F;
         MatrixStack matrixStack = event.getMatrices();
 
+
         BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.QUADS);
+
         preRender();
 
         Matrix4f matrix = matrixStack.peek().getPositionMatrix();
@@ -289,9 +242,94 @@ public class RenderUtils {
         bufferBuilder.vertex(matrix, right, bottom,0.0f).color(f, f1, f2, f3);
         bufferBuilder.vertex(matrix, right, top,0.0f).color(f, f1, f2, f3);
         bufferBuilder.vertex(matrix, left, top,0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, left, bottom,0.0f).color(f, f1, f2, f3);
 
         postRender(bufferBuilder, matrixStack);
     }
+
+
+    public static void drawRectOutline(DrawContext event, float x, float y, float width, float height, int color) {
+        float left = x - width / 2;
+        float right = x + width / 2;
+        float top = y - height / 2;
+        float bottom = y + height / 2;
+
+        float f3 = (color >> 24 & 255) / 255.0F;
+        float f = (color >> 16 & 255) / 255.0F;
+        float f1 = (color >> 8 & 255) / 255.0F;
+        float f2 = (color & 255) / 255.0F;
+
+        MatrixStack matrixStack = event.getMatrices();
+        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.DEBUG_LINE_STRIP);
+        preRender();
+        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
+
+        bufferBuilder.vertex(matrix, left, bottom, 0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, right, bottom, 0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, right, top, 0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, left, top, 0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, left, bottom, 0.0f).color(f, f1, f2, f3);
+
+        postRender(bufferBuilder, matrixStack);
+    }
+
+
+
+    public static void drawLine(DrawContext context, float x1, float y1, float x2, float y2, float width, int color) {
+        float a = (color >> 24 & 255) / 255.0F;
+        float r = (color >> 16 & 255) / 255.0F;
+        float g = (color >> 8 & 255) / 255.0F;
+        float b = (color & 255) / 255.0F;
+
+        MatrixStack matrix = context.getMatrices();
+        BufferBuilder buffer = getBufferBuilder(matrix, VertexFormat.DrawMode.QUADS);
+        preRender();
+
+        Matrix4f pos = matrix.peek().getPositionMatrix();
+
+
+        float dx = x2 - x1;
+        float dy = y2 - y1;
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        dx = width * (dy / len);
+        dy = width * (dx / len);
+
+        buffer.vertex(pos, x1 + dx, y1 - dy, 0).color(r, g, b, a);
+        buffer.vertex(pos, x2 + dx, y2 - dy, 0).color(r, g, b, a);
+        buffer.vertex(pos, x2 - dx, y2 + dy, 0).color(r, g, b, a);
+        buffer.vertex(pos, x1 - dx, y1 + dy, 0).color(r, g, b, a);
+
+
+        postRender(buffer, matrix);
+    }
+
+
+    public static void drawRect(DrawContext event, float x, float y, float width, float height, int color) {
+        float left = x - width / 2;
+        float right = x + width / 2;
+        float top = y - height / 2;
+        float bottom = y + height / 2;
+
+        float f3 = (color >> 24 & 255) / 255.0F;
+        float f = (color >> 16 & 255) / 255.0F;
+        float f1 = (color >> 8 & 255) / 255.0F;
+        float f2 = (color & 255) / 255.0F;
+
+        MatrixStack matrixStack = event.getMatrices();
+        BufferBuilder bufferBuilder = getBufferBuilder(matrixStack, VertexFormat.DrawMode.QUADS);
+        preRender();
+        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
+
+        bufferBuilder.vertex(matrix, left, bottom, 0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, right, bottom, 0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, right, top, 0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, left, top, 0.0f).color(f, f1, f2, f3);
+        bufferBuilder.vertex(matrix, left, bottom, 0.0f).color(f, f1, f2, f3);
+
+        postRender(bufferBuilder, matrixStack);
+    }
+
+
 
     public static Vec3d worldToScreen(Vec3d pos) {
         Camera camera = mc.getEntityRenderDispatcher().camera;
@@ -360,10 +398,10 @@ public class RenderUtils {
     }
 
     public static void preRender() {
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glDisable(GL11.GL_CULL_FACE);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL46.glEnable(GL46.GL_BLEND);
+        GL46.glBlendFunc(GL46.GL_SRC_ALPHA, GL46.GL_ONE_MINUS_SRC_ALPHA);
+        GL46.glDisable(GL46.GL_CULL_FACE);
+        GL46.glDisable(GL46.GL_DEPTH_TEST);
     }
 
     public static BufferBuilder getBufferBuilder(MatrixStack matrixStack, VertexFormat.DrawMode drawMode) {
@@ -380,8 +418,9 @@ public class RenderUtils {
         BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 
         RenderSystem.setShaderColor(1,1,1,1);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+        GL46.glDisable(GL46.GL_BLEND);
+        GL46.glEnable(GL46.GL_CULL_FACE);
+        GL46.glEnable(GL46.GL_DEPTH_TEST);
     }
 }

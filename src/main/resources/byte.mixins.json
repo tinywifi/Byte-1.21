@@ -20,7 +20,7 @@
     "RenderMixin",
     "RenderWorldMixin",
     "SendPacketMixin",
-    "TextRendererMixin",
-    "WorldMixin"
+    "SoundManagerMixin",
+    "TextRendererMixin"
   ]
 }

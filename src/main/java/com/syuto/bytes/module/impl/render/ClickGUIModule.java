@@ -2,6 +2,7 @@ package com.syuto.bytes.module.impl.render;
 
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
+import com.syuto.bytes.module.impl.render.click.ClickGuiScreen;
 import com.syuto.bytes.setting.impl.ModeSetting;
 import dev.blend.ui.dropdown.DropdownClickGUI;
 import org.lwjgl.glfw.GLFW;

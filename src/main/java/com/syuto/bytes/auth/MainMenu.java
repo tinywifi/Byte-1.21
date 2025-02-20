@@ -90,25 +90,7 @@ public class MainMenu extends Screen {
                 width, height
         );
 
-        context.drawTexture(
-                RenderLayer::getGuiTextured,
-                imageIdentifier2,
-                logoX + 1, logoY + 1,
-                0, 0,
-                logoWidth, logoHeight,
-                logoWidth, logoHeight
-        );
-
-        context.drawTexture(
-                RenderLayer::getGuiTextured,
-                imageIdentifier,
-                logoX, logoY,
-                0, 0,
-                logoWidth, logoHeight,
-                logoWidth, logoHeight
-        );
-
-        Snow.renderSnowflakes(context);
+        //Snow.renderSnowflakes(context);
 
         this.children().forEach(child -> {
             if (child instanceof ButtonWidget) {

@@ -63,11 +63,11 @@ public abstract class MinecraftClientMixin {
     // WHAT IS THIS???
     @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
     private void onSetScreen(Screen screen, CallbackInfo ci) {
-//        MinecraftClient client = MinecraftClient.getInstance();
-//        if (screen instanceof TitleScreen) {
-//            client.setScreen(new MainMenu());
-//            ci.cancel();
-//        }
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (screen instanceof TitleScreen) {
+            client.setScreen(new MainMenu());
+            ci.cancel();
+        }
         /*if (!Objects.equals(LoginGUI.rsp, "AUTHENTICATION_SUCCESS")) {
             System.out.println("hello c: " + LoginGUI.rsp);
             if (!(screen instanceof LoginGUI)) {

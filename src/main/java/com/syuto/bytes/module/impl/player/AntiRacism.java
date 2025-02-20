@@ -27,7 +27,7 @@ public class AntiRacism extends Module {
             if (message.contains(word) && !event.isCanceled()) {
                 String replacement = "*".repeat(word.length());
                 ChatUtils.print("No no word!");
-                //event.setCanceled(true);
+                event.setCanceled(true);
                 event.setMessage(message.replaceAll(word, replacement));
             }
         }

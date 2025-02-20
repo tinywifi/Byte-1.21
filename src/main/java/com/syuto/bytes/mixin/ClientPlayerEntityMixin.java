@@ -156,7 +156,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 
         NoSlow noslow = ModuleManager.getModule(NoSlow.class);
 
-        if (noslow != null ) {
+        if (noslow != null) {
             if (noslow.isEnabled() && event.isCanceled()) {
                 return false;
             }

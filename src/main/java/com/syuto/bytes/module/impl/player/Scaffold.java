@@ -74,6 +74,9 @@ public class Scaffold extends Module {
 
     @EventHandler
     public void onPreMotion(PreMotionEvent event) {
+        if (last == null) {
+            last = new float[]{mc.player.getYaw(), mc.player.getPitch()};
+        }
         if (mc.player.isOnGround()) {
             airTicks = 0;
         } else {
@@ -81,12 +84,12 @@ public class Scaffold extends Module {
         }
 
         if (targetBlock != null) {
-            rots = RotationUtils.getBlockRotations(targetBlock, facing);
+            rots = RotationUtils.getBlockRotations(this.targetBlock, this.facing);
         }
 
+        rots = RotationUtils.getFixedRotation(rots, last);
+
         if (rots != null) {
-
-
             if (last == null) {
                 last = rots;
             }
@@ -94,35 +97,27 @@ public class Scaffold extends Module {
             event.yaw = rots[0];
             event.pitch = rots[1];
 
-            float deltaYaw = MathHelper.wrapDegrees(event.yaw - mc.player.bodyYaw);
-            mc.player.bodyYaw += deltaYaw * 0.3F;
-            deltaYaw = MathHelper.wrapDegrees(event.yaw - mc.player.bodyYaw);
-            if (Math.abs(deltaYaw) > 50.0F) {
-                mc.player.bodyYaw += deltaYaw - Math.signum(deltaYaw) * 50.0F;
-            }
+            RotationUtils.turnHead(event.yaw);
 
-            mc.player.headYaw = event.yaw;
-
-            last = new float[]{event.yaw, 0};
+            last = new float[]{event.yaw, event.pitch};
         }
 
 
         Vec3d motion = mc.player.getVelocity();
         int simpleY = (int) Math.round((event.posY % 1.0D) * 100.0D);
 
-        //
         // ChatUtils.print(simpleY + " " + airTicks);
         if (mc.options.jumpKey.isPressed()) {
             switch(simpleY) {
                 case 0 -> {
                     mc.player.setVelocity(motion.x, 0.42f, motion.z);
+                    MovementUtil.setSpeed(0.29);
                     if (airTicks == 6) {
                         event.posY += 1E-14;
-                        mc.player.setVelocity(motion.x, -10, motion.z);
+                        mc.player.setVelocity(motion.x, -.42, motion.z);
                         airTicks = -1;
                         //ChatUtils.print("bye " + airTicks);
                     }
-                    MovementUtil.setSpeed(0.29);
                 }
                 case 42 -> {
                     mc.player.setVelocity(motion.x, 0.33f, motion.z);
@@ -153,7 +148,8 @@ public class Scaffold extends Module {
         int blockFacing = blockInfo[3];
 
         facing = Direction.byId(blockFacing);
-        
+
+        //if (facing == Direction.UP) return;
 
         targetBlock = new BlockPos(blockX, blockY, blockZ);
 
@@ -250,19 +246,6 @@ public class Scaffold extends Module {
         if (mc.player.sidewaysSpeed < 0) yaw += 90 * forward;
         return yaw;
     }
-
-    public float[] getBlockRotations(BlockPos blockPos, Direction facing) {
-        double d = blockPos.getX() + 0.5 - mc.player.getX() + facing.getOffsetX() * 0.5;
-        double d2 = blockPos.getZ() + 0.5 - mc.player.getZ() + facing.getOffsetZ() * 0.5;
-        double d3 = mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()) - blockPos.getY() - facing.getOffsetY() * 0.75;
-        double d4 = Math.sqrt(d * d + d2 * d2);
-        float yaw = (float) (Math.atan2(d2, d) * 180.0 / Math.PI) - 90.0f;
-        float pitch = (float) (Math.atan2(d3, d4) * 180.0 / Math.PI);
-
-        yaw = MathHelper.wrapDegrees(yaw);
-        return new float[]{yaw, pitch};
-    }
-
 
 
     private int getBlockSlot() {

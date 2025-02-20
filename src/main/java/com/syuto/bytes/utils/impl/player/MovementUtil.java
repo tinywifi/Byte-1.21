@@ -31,8 +31,21 @@ public class MovementUtil {
         return (float) Math.toRadians(rotationYaw);
     }
 
+    public static float[] move(float yaw) {
+        float radians = (float) Math.toRadians(yaw);
+        float forward = (float) -Math.cos(radians);
+        float sideways = (float) Math.sin(radians);
+
+        return new float[]{forward, sideways};
+    }
+
+
+    public static float directionAtan() {
+        return (float) Math.toDegrees(Math.atan2(-mc.player.getVelocity().x, mc.player.getVelocity().z));
+    }
+
 
     public static boolean isMoving() {
-        return mc.player.getMovementSpeed() > 0;
+        return mc.player.forwardSpeed > 0 || mc.player.forwardSpeed < 0 || mc.player.sidewaysSpeed > 0 || mc.player.sidewaysSpeed < 0;
     }
 }

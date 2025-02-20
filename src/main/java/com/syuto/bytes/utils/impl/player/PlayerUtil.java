@@ -1,11 +1,21 @@
 package com.syuto.bytes.utils.impl.player;
 
+import net.minecraft.client.Mouse;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.MaceItem;
+import net.minecraft.item.SwordItem;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
+import net.minecraft.world.World;
+
+import java.util.Optional;
 
 import static com.syuto.bytes.Byte.mc;
 
@@ -54,9 +64,57 @@ public class PlayerUtil {
     }
 
     public static HitResult raycast(float yaw, float pitch, double maxDistance, float tickDelta, boolean includeFluids) {
-        Vec3d vec3d = mc.player.getCameraPosVec(tickDelta);
-        Vec3d vec3d2 = mc.player.getRotationVector(pitch, yaw);
-        Vec3d vec3d3 = vec3d.add(vec3d2.x * maxDistance, vec3d2.y * maxDistance, vec3d2.z * maxDistance);
-        return mc.world.raycast(new RaycastContext(vec3d, vec3d3, RaycastContext.ShapeType.OUTLINE, includeFluids ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE, mc.player));
+        Vec3d startPos = mc.player.getCameraPosVec(tickDelta);
+        Vec3d direction = mc.player.getRotationVector(pitch, yaw);
+        Vec3d endPos = startPos.add(direction.multiply(maxDistance));
+
+        HitResult blockHit = mc.world.raycast(new RaycastContext(
+                startPos, endPos,
+                RaycastContext.ShapeType.OUTLINE,
+                includeFluids ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE,
+                mc.player
+        ));
+
+        EntityHitResult entityHit = raycastEntities(mc.world, mc.player, startPos, endPos, maxDistance);
+
+        if (entityHit != null && (blockHit == null || entityHit.getPos().squaredDistanceTo(startPos) < blockHit.getPos().squaredDistanceTo(startPos))) {
+            return entityHit;
+        }
+
+        return null;
+    }
+
+    // Entity raycasting method (manual)
+    private static EntityHitResult raycastEntities(World world, PlayerEntity player, Vec3d startPos, Vec3d endPos, double maxDistance) {
+        EntityHitResult closestEntityHit = null;
+        double closestDistanceSq = maxDistance * maxDistance;
+
+        Box searchBox = new Box(startPos, endPos).expand(1.0);
+
+        for (Entity entity : world.getOtherEntities(player, searchBox)) {
+            if (!entity.isAlive() || entity.isSpectator()) continue;
+
+            Box entityBox = entity.getBoundingBox().expand(0.1);
+            Optional<Vec3d> intersection = entityBox.raycast(startPos, endPos);
+            if (intersection.isPresent()) {
+                double distanceSq = startPos.squaredDistanceTo(intersection.get());
+                if (distanceSq < closestDistanceSq) {
+                    closestDistanceSq = distanceSq;
+                    closestEntityHit = new EntityHitResult(entity, intersection.get());
+                }
+            }
+        }
+
+        return closestEntityHit;
+    }
+
+
+
+    public static boolean isHoldingWeapon() {
+        if (mc.player.getMainHandStack() != null) {
+            Item item = mc.player.getMainHandStack().getItem();
+            return item instanceof SwordItem || item instanceof AxeItem || item instanceof MaceItem;
+        }
+        return false;
     }
 }

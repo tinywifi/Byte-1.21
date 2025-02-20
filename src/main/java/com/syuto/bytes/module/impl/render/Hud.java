@@ -12,12 +12,14 @@ import dev.blend.util.render.DrawUtil;
 import dev.blend.util.render.Gradient;
 import dev.blend.util.render.ResourceManager;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.render.VertexConsumers;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.joml.Matrix4f;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,6 +35,15 @@ public class Hud extends Module {
 
     Color darkblue = Color.blue;
     Color cyan = Color.cyan;
+
+    private List<Color> transFlagColors = Arrays.asList(
+            new Color(91, 206, 250),
+            new Color(245, 169, 184),
+            new Color(255, 255, 255),
+            new Color(245, 169, 184)
+            //new Color(85, 205, 252)
+    );
+
 
     @EventHandler
     void onPreUpdate(PreUpdateEvent event) {
@@ -59,35 +70,12 @@ public class Hud extends Module {
         int screenWidth = mc.getWindow().getScaledWidth();
         int screenHeight = mc.getWindow().getScaledHeight();
         int yPosition = 1;
+        int colorIndex = 0;
 
 
 
         matrices.push();
         //DrawUtil.begin();
-
-
-
-        String hudText = "ByteSense | developer (1.0) | " + (mc.getCurrentServerEntry() != null ? mc.getCurrentServerEntry().address : "singleplayer");
-        double width = DrawUtil.getStringWidth(hudText, 10, ResourceManager.FontResources.regular);
-
-        float height = 16;
-        float baseX = 5;
-        float baseY = 5;
-
-
-        /*DrawUtil.rect(baseX + 100, baseY + height + 2, width + 4, height + 2, new Color(60, 60, 60), Alignment.CENTER);
-        DrawUtil.rect(baseX + 100, baseY + height + 2, width - 1 + 4, height - 1 + 2, new Color(40, 40, 40), Alignment.CENTER);
-        DrawUtil.rect(baseX + 100, baseY + height + 2, width - 2 + 4, height - 2 + 2, new Color(60, 60, 60), Alignment.CENTER);
-        DrawUtil.rect(baseX + 100, baseY + height + 2, width - 2 + 4, height - 3 + 2, new Color(22, 22, 22), Alignment.CENTER);
-        DrawUtil.drawString(
-                hudText,
-                baseX + 100,
-                baseY + height + 2.5f,
-                10,
-                new Color(255, 255, 255),
-                Alignment.CENTER,
-                ResourceManager.FontResources.regular
-        );*/
 
         for (Module mod : sortedModules) {
             String moduleName = mod.getName();
@@ -95,6 +83,8 @@ public class Hud extends Module {
             if (module != null) {
                 String suffix = module.getSuffix();
                 String displayText = suffix.isEmpty() ? moduleName : moduleName + Formatting.GRAY + " " + suffix;
+
+                Color currentColor = transFlagColors.get(colorIndex % transFlagColors.size());
 
                 int textWidth = mc.textRenderer.getWidth(displayText);
                 int xPosition = screenWidth - textWidth - 2;
@@ -104,13 +94,26 @@ public class Hud extends Module {
                         displayText,
                         xPosition,
                         yPosition,
-                        cyan.getRGB(),
+                        currentColor.getRGB(),
                         event
 
                 );
                 yPosition += mc.textRenderer.fontHeight + 3;
+                colorIndex++;
             }
         }
+
+        RenderUtils.drawTextWithBackground(
+                matrix,
+                "Byte Beta v1.5",
+                10,
+                10,
+                cyan.getRGB(),
+                event
+
+        );
+
+
         //DrawUtil.end();
         matrices.pop();
     }

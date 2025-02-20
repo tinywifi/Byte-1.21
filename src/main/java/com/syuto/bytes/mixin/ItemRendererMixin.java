@@ -8,11 +8,14 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.SwordItem;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static com.syuto.bytes.Byte.mc;
 
 @Mixin(HeldItemRenderer.class)
 public abstract class ItemRendererMixin {
@@ -32,6 +35,35 @@ public abstract class ItemRendererMixin {
         if (animation.isEnabled()) {
             AnimationUtils.animate(matrices, player.getHandSwingProgress(tickDelta), f);
         }
+    }
+
+
+
+    @Redirect(method = "renderFirstPersonItem", at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;isUsingItem()Z",
+            ordinal = 1
+    ))
+    private boolean hookIsUseItem(AbstractClientPlayerEntity instance) {
+        var item = instance.getMainHandStack().getItem();
+        if (AnimationUtils.isBlocking() && item instanceof SwordItem) {
+            return true;
+        }
+        return instance.isUsingItem();
+    }
+
+
+    @Redirect(method = "renderFirstPersonItem", at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;getItemUseTimeLeft()I",
+            ordinal = 2
+    ))
+    private int hookItemUseItem(AbstractClientPlayerEntity instance) {
+        var item = instance.getMainHandStack().getItem();
+        if (AnimationUtils.isBlocking() && item instanceof SwordItem) {
+            return 7200;
+        }
+        return instance.getItemUseTimeLeft();
     }
 
 }

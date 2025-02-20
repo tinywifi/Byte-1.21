@@ -1,6 +1,8 @@
 package com.syuto.bytes.utils.impl.rotation;
 
 import com.syuto.bytes.utils.impl.client.ChatUtils;
+import com.syuto.bytes.utils.impl.player.MovementUtil;
+import net.minecraft.client.Mouse;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -11,37 +13,50 @@ import static com.syuto.bytes.Byte.mc;
 
 public class RotationUtils {
 
-    public static float[] getFixedRotation(final float[] rotations, final float[] lastRotations) {
+    public static float[] getFixedRotation(float[] rotations, float[] lastRotations) {
+        double gcd = gcd();
 
-        float sensitivity = (float) (mc.options.getMouseSensitivity().getValue() * 0.8f);
-        float gcd = sensitivity * sensitivity * sensitivity * 1.2f;
+        double deltaYaw = rotations[0] - lastRotations[0];
+        double deltaPitch = rotations[1] -  lastRotations[1];
 
-        float deltaYaw = rotations[0] - lastRotations[0];
-        float deltaPitch = rotations[1] - lastRotations[1];
+        double y = Math.round(deltaYaw / gcd) * gcd;
+        double p = Math.round(deltaPitch / gcd) * gcd;
 
-        float fixedYaw = lastRotations[0] + (deltaYaw - (deltaYaw % gcd));
-        float fixedPitch = lastRotations[1] + (deltaPitch - (deltaPitch % gcd));
+        double fixedYaw = lastRotations[0] + y;
+        double fixedPitch = lastRotations[1] + p;
 
-        return new float[]{fixedYaw, fixedPitch};
+        return new float[]{(float) fixedYaw, (float) MathHelper.clamp(fixedPitch, -90f, 90f)};
     }
 
 
-    public static float[] getRotations(Vec3d eye, Entity entity) {
+    public static double gcd() {
+        double d = mc.options.getMouseSensitivity().getValue() * 0.6000000238418579 + 0.20000000298023224;
+        return d * d * d * 1.2;
+    }
+
+
+    public static float[] getRotations(float[] last, Vec3d eye, Entity entity) {
         Vec3d to = entity.getEyePos();
-        double diffX = to.x - eye.x;
-        double diffY = to.y - eye.y;
-        double diffZ = to.z - eye.z;
-        double dist = Math.sqrt(diffX * diffX + diffZ * diffZ);
+        Vec3d diff = to.subtract(eye);
+        double dist = Math.sqrt(diff.x * diff.x + diff.z * diff.z);
 
-        float pitch = (float) -Math.atan2(dist, diffY);
-        float yaw = (float) Math.atan2(diffZ, diffX);
+        float pitch = (float) Math.toDegrees(-Math.atan2(diff.y - 0.5, dist));
+        float yaw = (float) Math.toDegrees(Math.atan2(diff.z, diff.x)) - 90;
 
-        pitch = (float) ((pitch * 180F) / Math.PI + 90) * -1;
-        yaw = (float) ((yaw * 180) / Math.PI) - 90;
+        yaw = unwrap(last[0], yaw);
 
-
-        return new float[]{yaw, clampPitch(pitch)};
+        return new float[]{yaw, pitch};
     }
+
+    private static float unwrap(float oldYaw, float currentYaw) {
+        float diff = currentYaw - (oldYaw % 360);
+
+        if (diff > 180) diff -= 360;
+        if (diff < -180) diff += 360;
+
+        return oldYaw + diff;
+    }
+
 
     public static float[] getRotationsToBlock(Vec3d eye, BlockPos blockPos, Direction face) {
         Vec3d target = new Vec3d(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5);
@@ -61,17 +76,41 @@ public class RotationUtils {
 
 
     public static float[] getBlockRotations(BlockPos blockPos, Direction facing) {
-        double d = blockPos.getX() + 0.5 - mc.player.getX() + facing.getOffsetX() * 0.5;
-        double d2 = blockPos.getZ() + 0.5 - mc.player.getZ() + facing.getOffsetZ() * 0.5;
-        double d3 = mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()) - blockPos.getY() - facing.getOffsetY() * 0.5;
-        double d4 = Math.sqrt(d * d + d2 * d2);
-        float yaw = (float) (Math.atan2(d2, d) * 180.0 / Math.PI) - 90.0f;
-        float pitch = (float) (Math.atan2(d3, d4) * 180.0 / Math.PI);
+        Vec3d direction = blockPos.toCenterPos().add(Vec3d.of(facing.getVector()).multiply(0.5).subtract(mc.player.getEyePos()));
 
-        return new float[]{MathHelper.wrapDegrees(yaw), clampPitch(pitch)};
+        float yaw = (float) Math.toDegrees(
+                Math.atan2(
+                        -direction.x,
+                        direction.z
+                )
+        );
+
+        float pitch = (float) Math.toDegrees(
+                Math.atan2(
+                        -direction.y,
+                        Math.hypot(
+                                direction.x,
+                                direction.z
+                        )
+                )
+        );
+        return new float[]{yaw, clampPitch(pitch)};
     }
 
     private static float clampPitch(float pitch) {
         return MathHelper.clamp(pitch, -90.0F, 90.0F);
+    }
+
+
+    public static void turnHead(float yaw) {
+        float f = MathHelper.wrapDegrees(yaw - mc.player.bodyYaw);
+        mc.player.bodyYaw += f * 0.3F;
+        float g = MathHelper.wrapDegrees(yaw - mc.player.bodyYaw);
+        float h = 50.0f;
+        if (Math.abs(g) > h) {
+            mc.player.bodyYaw += g - (float)MathHelper.sign((double)g) * h;
+        }
+
+        mc.player.headYaw = yaw;
     }
 }

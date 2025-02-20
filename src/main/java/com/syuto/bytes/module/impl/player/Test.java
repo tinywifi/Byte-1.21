@@ -8,6 +8,7 @@ import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.setting.impl.NumberSetting;
 import com.syuto.bytes.utils.impl.client.ChatUtils;
+import com.syuto.bytes.utils.impl.player.MovementUtil;
 import com.syuto.bytes.utils.impl.player.WorldUtil;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
 import com.syuto.bytes.utils.impl.rotation.RotationUtils;
@@ -16,6 +17,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+
+import static com.syuto.bytes.Byte.mc;
 
 
 public class Test extends Module {
@@ -30,6 +33,7 @@ public class Test extends Module {
     private BlockPos block, placePos;
     private Direction facing;
     private float[] rots;
+    private int ticks;
 
 
     @EventHandler
@@ -41,7 +45,8 @@ public class Test extends Module {
 
     @EventHandler
     void onPreUpdate(PreUpdateEvent event) {
-        for(int i = 0; i < 2; i++) {
+
+        for (int i = 0; i < 3; i++) {
             this.block = WorldUtil.findBlocks(
                     mc.player.getBlockPos(),
                     range.getValue().intValue()
@@ -51,7 +56,14 @@ public class Test extends Module {
             if (this.block != null) {
                 this.facing = WorldUtil.getClosest(this.block);
                 if (this.facing != null && WorldUtil.canBePlacedOn(this.block)) {
-                    this.place(block, facing);
+                    if (mc.world.getBlockState(mc.player.getBlockPos().down()).isAir()) {
+                        this.place(block, facing);
+
+                        if (this.block != null) {
+                            ChatUtils.print(this.facing.asString());
+                            this.rots = RotationUtils.getBlockRotations(this.block, this.facing);
+                        }
+                    }
                 }
             }
         }
@@ -61,23 +73,13 @@ public class Test extends Module {
     @EventHandler
     void onPreMotion(PreMotionEvent event) {
 
-        if (this.block != null) {
-            ChatUtils.print(this.facing.asString());
-            this.rots = RotationUtils.getBlockRotations(this.block.down(3), this.facing);
-            block = null;
-        }
-
 
         if (this.rots != null) {
-            event.yaw = rots[0];
-            event.pitch = rots[1];
+            //event.yaw = rots[0];
+            //event.pitch = rots[1];
 
-            float f = MathHelper.wrapDegrees(event.yaw - mc.player.bodyYaw);
-            mc.player.bodyYaw += f * 0.3F;
-            mc.player.headYaw = event.yaw;
-            if (Math.abs(f) > 50.0f) {
-                mc.player.bodyYaw += f - (float) MathHelper.sign(f) * 50.0f;
-            }
+            //RotationUtils.turnHead(event.yaw);
+
         }
     }
 
@@ -94,5 +96,6 @@ public class Test extends Module {
         mc.player.swingHand(mc.player.getActiveHand());
 
     }
+
 
 }

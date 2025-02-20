@@ -21,7 +21,7 @@ public class Velocity extends Module {
             EntityVelocityUpdateS2CPacket s12 = (EntityVelocityUpdateS2CPacket) event.getPacket();
             if (s12.getEntityId() == mc.player.getId()) {
                 Vec3d velo = mc.player.getVelocity();
-                mc.player.setVelocity(velo.x, s12.getVelocityY(), velo.z);
+                //mc.player.setVelocity(velo.x, s12.getVelocityY(), velo.z);
                 event.setCanceled(true);
             }
         }

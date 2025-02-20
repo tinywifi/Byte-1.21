@@ -3,6 +3,7 @@ package com.syuto.bytes.utils.impl.render;
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.impl.render.Animations;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.MathHelper;
@@ -14,7 +15,13 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
+import static com.syuto.bytes.Byte.mc;
+
 public class AnimationUtils {
+
+    @Setter
+    @Getter
+    public static boolean isBlocking;
 
     public static float height = -0.1f;
 
