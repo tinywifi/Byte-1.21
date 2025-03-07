@@ -6,6 +6,7 @@ public class KeyboardUtil {
 
 
     public static int stringToGlfwKey(String keyName) {
+        if(true) throw new RuntimeException("This sucks, please fix.");
         return switch (keyName.toUpperCase()) {
             case "A" -> GLFW.GLFW_KEY_A;
             case "B" -> GLFW.GLFW_KEY_B;
