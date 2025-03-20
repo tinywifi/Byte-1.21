@@ -13,6 +13,10 @@ import net.minecraft.item.SwordItem;
 public class NoSlow extends Module {
     public ModeSetting modes = new ModeSetting("mode",this,"Vanilla", "Epsilon", "Ground");
 
+    private int ground = 0;
+    private boolean state = false;
+
+
     public NoSlow() {
         super("NoSlow", "Stops you from slowing down", Category.MOVEMENT);
         setSuffix(() -> modes.getValue());
@@ -27,10 +31,26 @@ public class NoSlow extends Module {
 
     @EventHandler
     void onPreMotion(PreMotionEvent event) {
+
+        boolean ground = mc.player.isOnGround();
+
+        this.ground = ground ? this.ground + 1 : 0;
+
         if (canNoSlow()) {
             switch(modes.getValue()) {
                 case "Epsilon" -> {
-                    event.posY +=  1E-14;
+                    if (this.ground >= 18 && canNoSlow()) {
+                        state = true;
+                        mc.options.jumpKey.setPressed(false);
+                        mc.player.jump();
+                    }
+
+                    if (state) {
+                        event.posY +=  1E-14;
+                    }
+                }
+                case "Ground" -> {
+
                 }
             }
         }

@@ -1,7 +1,6 @@
 package com.syuto.bytes.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.syuto.bytes.auth.MainMenu;
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.impl.player.FastPlace;
 import dev.blend.ThemeHandler;
@@ -33,6 +32,7 @@ public abstract class MinecraftClientMixin {
     )
     private void initializeNanoVG(RunArgs args, CallbackInfo ci) {
         DrawUtil.initialize();
+        //RichPresenceUtil.init();
     }
 
     @Shadow
@@ -58,23 +58,5 @@ public abstract class MinecraftClientMixin {
     )
     private void updateThemeHandler(boolean tick, CallbackInfo ci) {
         ThemeHandler.INSTANCE.update();
-    }
-
-    // WHAT IS THIS???
-    @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
-    private void onSetScreen(Screen screen, CallbackInfo ci) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (screen instanceof TitleScreen) {
-            client.setScreen(new MainMenu());
-            ci.cancel();
-        }
-        /*if (!Objects.equals(LoginGUI.rsp, "AUTHENTICATION_SUCCESS")) {
-            System.out.println("hello c: " + LoginGUI.rsp);
-            if (!(screen instanceof LoginGUI)) {
-                client.setScreen(new LoginGUI());
-                ci.cancel();
-            }
-        }
-        System.out.println("hello: " + LoginGUI.rsp);*/
     }
 }

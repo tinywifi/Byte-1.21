@@ -9,6 +9,7 @@ import org.lwjgl.nanovg.NVGPaint
 import org.lwjgl.nanovg.NanoVG.*
 import org.lwjgl.nanovg.NanoVGGL3
 import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL46
 import org.lwjgl.system.MemoryStack
 import java.awt.Color
 import java.lang.IllegalArgumentException
@@ -343,7 +344,11 @@ object DrawUtil: IAccessor {
         RenderSystem.disableCull()
         RenderSystem.enableDepthTest()
         RenderSystem.disableBlend()
+
+        RenderSystem.activeTexture(GL46.GL_TEXTURE0)
+        RenderSystem.bindTexture(0)
     }
+
     private fun alignX(x: Number, width: Number, alignment: Alignment): Float {
         return when (alignment) {
             Alignment.TOP_RIGHT, Alignment.CENTER_RIGHT, Alignment.BOTTOM_RIGHT -> x.toDouble() - width.toDouble()

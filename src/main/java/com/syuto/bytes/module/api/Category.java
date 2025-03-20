@@ -5,6 +5,6 @@ public enum Category {
     MOVEMENT,
     PLAYER,
     RENDER,
-    OTHER;
+    EXPLOIT;
     public final String properName = name().toUpperCase().charAt(0) + name().toLowerCase().substring(1);
 }

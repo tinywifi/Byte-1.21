@@ -105,10 +105,9 @@ public class RotationUtils {
     public static void turnHead(float yaw) {
         float f = MathHelper.wrapDegrees(yaw - mc.player.bodyYaw);
         mc.player.bodyYaw += f * 0.3F;
-        float g = MathHelper.wrapDegrees(yaw - mc.player.bodyYaw);
         float h = 50.0f;
-        if (Math.abs(g) > h) {
-            mc.player.bodyYaw += g - (float)MathHelper.sign((double)g) * h;
+        if (Math.abs(f) > h) {
+            mc.player.bodyYaw += f - (float) MathHelper.sign(f) * h;
         }
 
         mc.player.headYaw = yaw;

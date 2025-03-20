@@ -1,5 +1,6 @@
 package com.syuto.bytes.utils.impl.player;
 
+import net.minecraft.block.BedBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -23,16 +24,20 @@ public class WorldUtil {
         return block.orElse(null);
     }
 
+    public static BlockPos findBlocksAround(BlockPos pos, int range) {
+        Optional<BlockPos> block = BlockPos.findClosest(
+                pos, range, range,
+                cock -> mc.world.getBlockState(cock).getBlock() instanceof BedBlock
+        );
+        return block.orElse(null);
+    }
+
     public static Direction getClosest(BlockPos pos) {
         double closestDistance = Double.MAX_VALUE;
         Direction closestDirection = null;
 
         for (Direction dir : Direction.values()) {
             BlockPos offsetPos = pos.offset(dir);
-
-            if (!mc.world.getBlockState(offsetPos).isAir()) {
-                continue;
-            }
 
             Vec3d faceCenter = offsetPos.toCenterPos();
             double distance = mc.player.getPos().squaredDistanceTo(faceCenter);

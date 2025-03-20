@@ -22,52 +22,49 @@ public class RenderTest extends Module {
 
     @EventHandler
     void onRenderTick(RenderTickEvent event) {
+        float delta = mc.getRenderTickCounter().getTickDelta(false);
         for (Entity entity : mc.world.getEntities()) {
-            if (entity instanceof PlayerEntity en && entity.isAlive()) {
-                if (!isEntityInView(en)) continue;
-                float delta = mc.getRenderTickCounter().getTickDelta(true);
+            if (!(entity instanceof PlayerEntity en) || !en.isAlive() || !isEntityInView(en) || en == mc.player) continue;
 
-                double interpolatedX = en.prevX + (en.getX() - en.prevX) * delta;
-                double interpolatedY = en.prevY + (en.getY() - en.prevY) * delta;
-                double interpolatedZ = en.prevZ + (en.getZ() - en.prevZ) * delta;
+            double interpolatedX = en.prevX + (en.getX() - en.prevX) * delta;
+            double interpolatedY = en.prevY + (en.getY() - en.prevY) * delta;
+            double interpolatedZ = en.prevZ + (en.getZ() - en.prevZ) * delta;
 
-                Box interpolatedBox = en.getBoundingBox().expand(0.15f).offset(
-                        interpolatedX - en.getX(),
-                        interpolatedY - en.getY(),
-                        interpolatedZ - en.getZ()
-                );
+            float expansion = 0.1f;
+            Box interpolatedBox = en.getBoundingBox().expand(expansion).offset(
+                    interpolatedX - en.getX(),
+                    interpolatedY - en.getY(),
+                    interpolatedZ - en.getZ()
+            );
 
-                Vec3d[] corners = {
-                        new Vec3d(interpolatedBox.minX, interpolatedBox.minY, interpolatedBox.minZ),
-                        new Vec3d(interpolatedBox.maxX, interpolatedBox.minY, interpolatedBox.minZ),
-                        new Vec3d(interpolatedBox.minX, interpolatedBox.maxY, interpolatedBox.minZ),
-                        new Vec3d(interpolatedBox.maxX, interpolatedBox.maxY, interpolatedBox.minZ),
-                        new Vec3d(interpolatedBox.minX, interpolatedBox.minY, interpolatedBox.maxZ),
-                        new Vec3d(interpolatedBox.maxX, interpolatedBox.minY, interpolatedBox.maxZ),
-                        new Vec3d(interpolatedBox.minX, interpolatedBox.maxY, interpolatedBox.maxZ),
-                        new Vec3d(interpolatedBox.maxX, interpolatedBox.maxY, interpolatedBox.maxZ),
-                };
+            Vec3d[] corners = new Vec3d[8];
+            for (int i = 0; i < 8; i++) {
+                double x = (i & 1) == 0 ? interpolatedBox.minX : interpolatedBox.maxX;
+                double y = (i & 2) == 0 ? interpolatedBox.minY : interpolatedBox.maxY;
+                double z = (i & 4) == 0 ? interpolatedBox.minZ : interpolatedBox.maxZ;
+                corners[i] = new Vec3d(x, y, z);
+            }
 
-                float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE;
-                float maxX = Float.MIN_VALUE, maxY = Float.MIN_VALUE;
+            float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE;
+            float maxX = Float.MIN_VALUE, maxY = Float.MIN_VALUE;
 
-                for (Vec3d corner : corners) {
-                    Vec3d screenPos = RenderUtils.worldToScreen(corner);
-                    if (screenPos != null) {
-                        minX = Math.min(minX, (float) screenPos.x);
-                        minY = Math.min(minY, (float) screenPos.y);
-                        maxX = Math.max(maxX, (float) screenPos.x);
-                        maxY = Math.max(maxY, (float) screenPos.y);
-                    }
+            for (Vec3d corner : corners) {
+                Vec3d screenPos = RenderUtils.worldToScreen(corner);
+                if (screenPos != null) {
+                    minX = Math.min(minX, (float) screenPos.x);
+                    minY = Math.min(minY, (float) screenPos.y);
+                    maxX = Math.max(maxX, (float) screenPos.x);
+                    maxY = Math.max(maxY, (float) screenPos.y);
                 }
+            }
 
-                if (minX < maxX && minY < maxY) {
-                    //RenderUtils.drawRectOutline(event, minX, minY, maxX, maxY, 0xFFFFFFFF);
-                    //RenderUtils.drawRect(event, minX + 0.1F, minY + 0.1F, maxX - 0.1F, maxY - 0.1F, 0x80000000);
-                }
+            if (minX < maxX && minY < maxY) {
+                RenderUtils.drawRectOutline(event.context.getMatrices(), minX, maxX, maxY, minY, 0xFFFFFFFF);
             }
         }
     }
+
+
 
 
 

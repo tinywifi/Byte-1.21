@@ -4,8 +4,6 @@ import com.syuto.bytes.commands.CommandManager;
 import com.syuto.bytes.eventbus.EventBus;
 import com.syuto.bytes.eventbus.Handlers;
 import com.syuto.bytes.module.ModuleManager;
-import com.syuto.bytes.utils.impl.client.ClientUtil;
-import com.syuto.bytes.utils.impl.hwid.HWIDUtils;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.registry.Registries;

@@ -6,7 +6,7 @@ import com.syuto.bytes.utils.impl.client.WinUtil;
 
 public class Bsod extends Module {
     public Bsod() {
-        super("BSOD", "Cause a BSOD", Category.OTHER);
+        super("BSOD", "Cause a BSOD", Category.EXPLOIT);
     }
 
     @Override

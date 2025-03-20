@@ -1,17 +1,22 @@
 package com.syuto.bytes.utils.impl.player;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Mouse;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.effect.StatusEffectUtil;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.MaceItem;
-import net.minecraft.item.SwordItem;
+import net.minecraft.item.*;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
@@ -116,5 +121,61 @@ public class PlayerUtil {
             return item instanceof SwordItem || item instanceof AxeItem || item instanceof MaceItem;
         }
         return false;
+    }
+
+
+
+
+    public static float calcBlockBreakingDelta(BlockPos pos, ItemStack slot) {
+        BlockState blockState = mc.world.getBlockState(pos);
+        float hardness = blockState.getHardness(mc.world, pos);
+        if (hardness == -1.0F) {
+            return 0.0F;
+        } else {
+            //int i = player.canHarvest(state) ? 30 : 100;
+            int i = (!blockState.isToolRequired() || slot.isSuitableFor(blockState)) ? 30 : 100;
+
+            float blockBreakingSpeed = slot.getMiningSpeedMultiplier(blockState);
+            if (blockBreakingSpeed > 1.0F) {
+                float efficiencyMulti = (float) (Math.pow(InventoryUtil.getEnchantLevel(slot, Enchantments.EFFICIENCY), 2) + 1);
+                blockBreakingSpeed += efficiencyMulti == 1 ? 0 : efficiencyMulti;
+            }
+
+            if (StatusEffectUtil.hasHaste( mc.player)) {
+                blockBreakingSpeed *=
+                        1.0F +
+                                (float) (StatusEffectUtil.getHasteAmplifier(mc.player) + 1) * 0.2F;
+            }
+
+            if ( mc.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
+                float g =
+                        switch (mc.player.getStatusEffect(StatusEffects.MINING_FATIGUE).getAmplifier()) {
+                            case 0 -> 0.3F;
+                            case 1 -> 0.09F;
+                            case 2 -> 0.0027F;
+                            default -> 8.1E-4F;
+                        };
+
+                blockBreakingSpeed *= g;
+            }
+
+            blockBreakingSpeed *=
+                    (float)  mc.player
+                            .getAttributeValue(EntityAttributes.BLOCK_BREAK_SPEED);
+            if ( mc.player.isSubmergedIn(FluidTags.WATER)) {
+                blockBreakingSpeed *=
+                        (float) mc.player
+                                .getAttributeInstance(
+                                        EntityAttributes.SUBMERGED_MINING_SPEED
+                                )
+                                .getValue();
+            }
+
+            if (!mc.player.isOnGround()) {
+                blockBreakingSpeed /= 5.0F;
+            }
+
+            return blockBreakingSpeed / hardness / (float) i;
+        }
     }
 }

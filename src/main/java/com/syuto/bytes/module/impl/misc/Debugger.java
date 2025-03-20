@@ -8,7 +8,7 @@ import com.syuto.bytes.utils.impl.client.ChatUtils;
 
 public class Debugger extends Module {
     public Debugger() {
-        super("Debugger", "Prints incoming packets", Category.OTHER);
+        super("Debugger", "Prints incoming packets", Category.EXPLOIT);
     }
 
     private int ticks;

@@ -2,8 +2,11 @@ package com.syuto.bytes.module.impl.combat;
 
 import com.syuto.bytes.eventbus.EventHandler;
 import com.syuto.bytes.eventbus.impl.*;
+import com.syuto.bytes.mixin.SendPacketMixinAccessor;
 import com.syuto.bytes.module.Module;
+import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.api.Category;
+import com.syuto.bytes.module.impl.player.Scaffold;
 import com.syuto.bytes.setting.impl.ModeSetting;
 import com.syuto.bytes.setting.impl.NumberSetting;
 import com.syuto.bytes.utils.impl.client.ChatUtils;
@@ -12,7 +15,9 @@ import com.syuto.bytes.utils.impl.player.PlayerUtil;
 import com.syuto.bytes.utils.impl.render.AnimationUtils;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
 import com.syuto.bytes.utils.impl.rotation.RotationUtils;
-import net.minecraft.entity.Entity;
+import dev.blend.util.render.DrawUtil;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
@@ -20,16 +25,14 @@ import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 public class Killaura extends Module {
@@ -43,7 +46,7 @@ public class Killaura extends Module {
 
     private long lastSwitchTime, attackDelay, lastAttackTime;
     private final List<PlayerEntity> targets = new ArrayList<>();
-    private PlayerEntity target;
+    public static PlayerEntity target;
     private float[] rotations, lastRotation;
     private boolean shouldAttack, firstBlock, blocking;
     private int targetIndex = 0, ticks;
@@ -55,6 +58,8 @@ public class Killaura extends Module {
 
     @Override
     public void onDisable() {
+
+
         if (this.blocking) {
             mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, Direction.DOWN));
             this.blocking = false;
@@ -71,6 +76,7 @@ public class Killaura extends Module {
 
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
+        var hello = 0;
         if (lastRotation == null) {
             lastRotation = new float[]{mc.player.getYaw(), mc.player.getPitch()};
         }
@@ -111,7 +117,7 @@ public class Killaura extends Module {
             float[] move = MovementUtil.move(rotations[0]);
 
         }
-        if (rotations != null && target != null) {
+        if (rotations != null && target != null && canSwing(target)) {
             event.yaw = rotations[0];
             event.pitch = rotations[1];
             RotationUtils.turnHead(event.yaw);
@@ -130,17 +136,127 @@ public class Killaura extends Module {
         }
     }
 
+
+    private long animationStartTime;
+    private int animationTime = 1000;
+
     @EventHandler
     public void onRenderTick(RenderTickEvent e) {
-        if (target != null && System.currentTimeMillis() - lastAttackTime >= attackDelay && canSwing(target)) {
-            lastAttackTime = System.currentTimeMillis();
-            updateAttackDelay();
-            shouldAttack = true;
+        if (target != null) {
+            if (System.currentTimeMillis() - lastAttackTime >= attackDelay && canSwing(target)) {
+                lastAttackTime = System.currentTimeMillis();
+                updateAttackDelay();
+                shouldAttack = true;
+            }
+            rotations = RotationUtils.getRotations(
+                    lastRotation,
+                    mc.player.getEyePos(),
+                    target
+            );
+
+
+            DrawContext context = e.context;
+
+            MatrixStack matrixStack = context.getMatrices();
+
+            float height = mc.getWindow().getScaledHeight();
+            float width = mc.getWindow().getScaledWidth();
+
+            float left = width / 2 + 50;
+            float right = left + 160;
+            float top = height / 2 + 50;
+            float bottom = top + 40;
+
+            float currentHealth = target.getMaxHealth() + target.getAbsorptionAmount();
+            float maxHealth = target.getHealth() / currentHealth;
+            float health = target.getHealth() + target.getAbsorptionAmount();
+
+            Color healthColor = maxHealth < 0.3D ? Color.RED : (maxHealth < 0.5D ? Color.orange : (maxHealth < 0.7D ? Color.yellow : Color.green));
+
+            String name = target.getName().getString();
+
+            float hbX = width / 2 + 55;
+            float hbeX = hbX + (150 * maxHealth);
+
+            float hbY = top + 30;
+            float hbeY = hbY + 5;
+            float g = hbX + 150;
+
+            float gg = hbX + 140;
+
+            RenderUtils.drawRect(
+                    matrixStack,
+                    left,
+                    right,
+                    top,
+                    bottom,
+                    new Color(0,0,0, 75).getRGB()
+            );
+
+            RenderUtils.drawRect(
+                    matrixStack,
+                    hbX,
+                    g,
+                    hbY,
+                    hbeY,
+                    healthColor.darker().getRGB()
+            );
+
+            RenderUtils.drawRect(
+                    matrixStack,
+                    hbX,
+                    hbeX,
+                    hbY,
+                    hbeY,
+                    healthColor.getRGB()
+            );
+
+            RenderUtils.drawRectOutline(
+                    matrixStack,
+                    left,
+                    right,
+                    top,
+                    bottom,
+                    healthColor.getRGB()
+            );
+
+            float y = ((top + bottom) - mc.textRenderer.fontHeight) / 2;
+
+            RenderUtils.drawText(
+                    context,
+                    name,
+                    hbX,
+                    y,
+                    Color.WHITE.getRGB()
+            );
+
+            String text = String.format("%.1f", health) + " HP";
+            RenderUtils.drawText(
+                    context,
+                    text,
+                    gg - mc.textRenderer.getWidth(text),
+                    y,
+                    Color.WHITE.getRGB()
+            );
+
+            float hh = mc.player.getHealth() + mc.player.getAbsorptionAmount();
+            String xx = hh > health ? "W" : "L";
+            Color xxg = hh > health ? Color.GREEN : Color.RED;
+            RenderUtils.drawText(
+                    context,
+                    xx,
+                    g - mc.textRenderer.getWidth(xx),
+                    y,
+                    xxg.getRGB()
+            );
+
         }
 
-        if (target != null) {
-            rotations = RotationUtils.getRotations(lastRotation, mc.player.getEyePos(), target);
-        }
+
+    }
+
+    float easeIn(float t) {
+        return 1 - (float)Math.pow(1 - t, 3);
     }
 
     @EventHandler
@@ -183,7 +299,8 @@ public class Killaura extends Module {
 
     private boolean canSwing(PlayerEntity entity) {
         double distance = PlayerUtil.getBiblicallyAccurateDistanceToEntity(entity);
-        return entity != mc.player && distance <= reach.getValue().doubleValue() && entity.isAlive();
+        Scaffold scaffold = ModuleManager.getModule(Scaffold.class);
+        return (scaffold != null && !scaffold.isEnabled()) && entity != mc.player && distance <= reach.getValue().doubleValue() && entity.isAlive();
     }
 
     private void updateAttackDelay() {
@@ -193,11 +310,11 @@ public class Killaura extends Module {
     private void handleAutoBlock() {
         if (autoBlock.getValue().equals("Watchdog")) {
             if (!firstBlock) {
-                swapSlots();
+                //unblock();
                 block(rotations[0], rotations[1]);
                 ChatUtils.print("First Nigger");
                 firstBlock = true;
-            } else if (ticks % 8 == 0) {
+            } else if (ticks % 7 == 0) {
                 swapSlots();
                 block(rotations[0], rotations[1]);
                 ChatUtils.print("Nigger");
@@ -206,7 +323,7 @@ public class Killaura extends Module {
     }
 
     private void executeAttack(EntityHitResult r) {
-        if (canSwing(target) && mc.player.getAttackCooldownProgress(0.5f) >= 1.0) {
+        if (canSwing(target) && shouldAttack) { //shouldAttack mc.player.getAttackCooldownProgress(0.5f) >= 1.0
             mc.interactionManager.attackEntity(mc.player, target);
             mc.getNetworkHandler().sendPacket(
                     PlayerInteractEntityC2SPacket.interactAt(
@@ -223,13 +340,29 @@ public class Killaura extends Module {
     }
 
     private void swapSlots() {
-        mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket((mc.player.getInventory().selectedSlot % 7) + 2));
+        mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(mc.player.getInventory().selectedSlot % 7 + 2));
         mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(mc.player.getInventory().selectedSlot));
         blocking = false;
     }
+    
 
     private void block(float yaw, float pitch) {
-        mc.getNetworkHandler().sendPacket(new PlayerInteractItemC2SPacket(Hand.MAIN_HAND, -1, yaw, pitch));
+        mc.getNetworkHandler().sendPacket(new PlayerInteractItemC2SPacket(Hand.MAIN_HAND, 0, yaw, pitch));
         blocking = true;
     }
+
+    private void unblock() {
+        SendPacketMixinAccessor silent = (SendPacketMixinAccessor) mc.getNetworkHandler();
+        silent.getConnection().send(
+                new PlayerActionC2SPacket(
+                        PlayerActionC2SPacket
+                                .Action
+                                .RELEASE_USE_ITEM,
+                        BlockPos.ORIGIN,
+                        Direction.DOWN
+                )
+        );
+    }
+
+
 }

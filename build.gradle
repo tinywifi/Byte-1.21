@@ -19,6 +19,7 @@ repositories {
 		name = "LWJGL snapshots"
 		url = "https://oss.sonatype.org/content/repositories/snapshots/"
 	}
+	maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -37,13 +38,11 @@ dependencies {
 	include implementation('com.github.oshi:oshi-core:6.6.5')
 	include implementation('net.java.dev.jna:jna:5.16.0')
 
-	//implementation("org.lwjgl:lwjgl:${project.minecraft_lwjgl_version}")
-	//implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}")
 	include implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}")
 	["windows", "linux"].forEach {
 		include implementation("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}:natives-${it}")
-		//include("org.lwjgl:lwjgl-nanovg:${project.minecraft_lwjgl_version}:natives-${it}")
 	}
+
 }
 
 processResources {

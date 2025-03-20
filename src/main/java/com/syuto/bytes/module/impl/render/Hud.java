@@ -74,7 +74,7 @@ public class Hud extends Module {
 
 
 
-        matrices.push();
+        //matrices.push();
         //DrawUtil.begin();
 
         for (Module mod : sortedModules) {
@@ -89,13 +89,12 @@ public class Hud extends Module {
                 int textWidth = mc.textRenderer.getWidth(displayText);
                 int xPosition = screenWidth - textWidth - 2;
 
-                RenderUtils.drawTextWithBackground(
-                        matrix,
+                RenderUtils.drawText(
+                        event.context,
                         displayText,
                         xPosition,
                         yPosition,
-                        currentColor.getRGB(),
-                        event
+                        currentColor.getRGB()
 
                 );
                 yPosition += mc.textRenderer.fontHeight + 3;
@@ -103,19 +102,18 @@ public class Hud extends Module {
             }
         }
 
-        RenderUtils.drawTextWithBackground(
-                matrix,
+        RenderUtils.drawText(
+                event.context,
                 "Byte Beta v1.5",
                 10,
                 10,
-                cyan.getRGB(),
-                event
+                cyan.getRGB()
 
         );
 
 
         //DrawUtil.end();
-        matrices.pop();
+        //matrices.pop();
     }
 }
 

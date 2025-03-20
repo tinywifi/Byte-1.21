@@ -74,6 +74,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
         Byte.INSTANCE.eventBus.post(new PreUpdateEvent());
     }
 
+
     /**
      * @author
      * @reason

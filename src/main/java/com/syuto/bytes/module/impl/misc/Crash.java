@@ -8,7 +8,7 @@ import com.syuto.bytes.utils.impl.client.ClientUtil;
 
 public class Crash extends Module {
     public Crash() {
-        super("Crash", "Memory Corruption as a feature", Category.OTHER);
+        super("Crash", "Memory Corruption as a feature", Category.EXPLOIT);
     }
 
     @EventHandler

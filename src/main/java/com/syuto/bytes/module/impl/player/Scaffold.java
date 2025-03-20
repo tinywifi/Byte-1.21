@@ -70,6 +70,9 @@ public class Scaffold extends Module {
             place();
 
         }
+
+        //mc.player.setSprinting(false);
+       //mc.options.sprintKey.setPressed(false);
     }
 
     @EventHandler
@@ -85,14 +88,15 @@ public class Scaffold extends Module {
 
         if (targetBlock != null) {
             rots = RotationUtils.getBlockRotations(this.targetBlock, this.facing);
+
+            rots[0] = yaw();
+
+
+            rots = RotationUtils.getFixedRotation(rots, last);
         }
 
-        rots = RotationUtils.getFixedRotation(rots, last);
 
         if (rots != null) {
-            if (last == null) {
-                last = rots;
-            }
 
             event.yaw = rots[0];
             event.pitch = rots[1];
@@ -107,11 +111,13 @@ public class Scaffold extends Module {
         int simpleY = (int) Math.round((event.posY % 1.0D) * 100.0D);
 
         // ChatUtils.print(simpleY + " " + airTicks);
-        if (mc.options.jumpKey.isPressed()) {
+        if (mc.options.jumpKey.isPressed() && MovementUtil.isMoving()) {
             switch(simpleY) {
                 case 0 -> {
                     mc.player.setVelocity(motion.x, 0.42f, motion.z);
-                    MovementUtil.setSpeed(0.29);
+                    if (MovementUtil.isMoving()) {
+                        MovementUtil.setSpeed(0.28);
+                    }
                     if (airTicks == 6) {
                         event.posY += 1E-14;
                         mc.player.setVelocity(motion.x, -.42, motion.z);
@@ -121,7 +127,9 @@ public class Scaffold extends Module {
                 }
                 case 42 -> {
                     mc.player.setVelocity(motion.x, 0.33f, motion.z);
-                    MovementUtil.setSpeed(0.29);
+                    if (MovementUtil.isMoving()) {
+                        MovementUtil.setSpeed(0.28);
+                    }
                 }
                 case 75 -> {
                     mc.player.setVelocity(motion.x, 0.25f, motion.z);
@@ -282,10 +290,18 @@ public class Scaffold extends Module {
 
 
     public float yaw() {
-        Vec3d motion = mc.player.getVelocity();
-        double radians = Math.atan2(motion.z, motion.x);
-        float yaw = (float) Math.toDegrees(radians);
-        return yaw + 30;
+        float quad = MovementUtil.directionAtan() % 90;
+        float offset;
+
+        if (quad < 10 || quad >= 80) {
+            offset = 55.5f;
+        } else if (quad < 45) {
+            offset = 45f;
+        } else {
+            offset = -45f;
+        }
+
+        return MovementUtil.directionAtan() + 180 + offset;
     }
 
 

@@ -45,8 +45,9 @@ public class Test extends Module {
 
     @EventHandler
     void onPreUpdate(PreUpdateEvent event) {
+        ticks = !mc.player.isOnGround() ? ticks + 1 : 0;
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 1; i++) {
             this.block = WorldUtil.findBlocks(
                     mc.player.getBlockPos(),
                     range.getValue().intValue()
@@ -57,8 +58,9 @@ public class Test extends Module {
                 this.facing = WorldUtil.getClosest(this.block);
                 if (this.facing != null && WorldUtil.canBePlacedOn(this.block)) {
                     if (mc.world.getBlockState(mc.player.getBlockPos().down()).isAir()) {
-                        this.place(block, facing);
-
+                        if (ticks >= 6) {
+                            this.place(block, facing);
+                        }
                         if (this.block != null) {
                             ChatUtils.print(this.facing.asString());
                             this.rots = RotationUtils.getBlockRotations(this.block, this.facing);
@@ -74,11 +76,11 @@ public class Test extends Module {
     void onPreMotion(PreMotionEvent event) {
 
 
-        if (this.rots != null) {
-            //event.yaw = rots[0];
-            //event.pitch = rots[1];
+        if (this.rots != null && ticks >= 3) {
+            event.yaw = rots[0];
+            event.pitch = rots[1];
 
-            //RotationUtils.turnHead(event.yaw);
+            RotationUtils.turnHead(event.yaw);
 
         }
     }

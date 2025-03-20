@@ -5,12 +5,10 @@ import com.syuto.bytes.eventbus.impl.ChatEvent;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.utils.impl.client.ChatUtils;
-import net.minecraft.sound.SoundEvent;
-
 
 public class AntiRacism extends Module {
     public AntiRacism() {
-        super("Disabler", "FUCK RACISM", Category.PLAYER);
+        super("Anti racism", "FUCK RACISM", Category.PLAYER);
     }
 
     static String[] racismList = new String[] {
