@@ -9,7 +9,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static com.syuto.bytes.Byte.mc;
@@ -30,6 +33,42 @@ public class WorldUtil {
                 cock -> mc.world.getBlockState(cock).getBlock() instanceof BedBlock
         );
         return block.orElse(null);
+    }
+
+    public static List<BlockPos> findAllOres(BlockPos centerPos, int range) {
+        List<BlockPos> diamondOres = new ArrayList<>();
+
+        for (int x = centerPos.getX() - range; x <= centerPos.getX() + range; x++) {
+            for (int y = centerPos.getY() - range; y <= centerPos.getY() + range; y++) {
+                for (int z = centerPos.getZ() - range; z <= centerPos.getZ() + range; z++) {
+                    BlockPos currentPos = new BlockPos(x, y, z);
+                    Block block = mc.world.getBlockState(currentPos).getBlock();
+                    //we dont talk about this lol
+                    if (
+                            block == Blocks.DIAMOND_ORE ||
+                            block == Blocks.IRON_ORE ||
+                            block == Blocks.DEEPSLATE_DIAMOND_ORE ||
+                            block == Blocks.DEEPSLATE_IRON_ORE ||
+                            block == Blocks.DEEPSLATE_COAL_ORE ||
+                            block == Blocks.COAL_ORE ||
+                            block == Blocks.LAPIS_ORE ||
+                            block == Blocks.DEEPSLATE_LAPIS_ORE ||
+                            block == Blocks.ANCIENT_DEBRIS ||
+                            block == Blocks.EMERALD_ORE ||
+                            block == Blocks.DEEPSLATE_EMERALD_ORE ||
+                            block == Blocks.VAULT ||
+                            block == Blocks.DEEPSLATE_GOLD_ORE ||
+                            block == Blocks.GOLD_ORE ||
+                            block == Blocks.GOLD_BLOCK ||
+                            block == Blocks.CHEST
+                    ) {
+                        diamondOres.add(currentPos);
+                    }
+                }
+            }
+        }
+
+        return diamondOres;
     }
 
     public static Direction getClosest(BlockPos pos) {
@@ -55,20 +94,22 @@ public class WorldUtil {
 
 
     public static boolean canBePlacedOn(BlockPos blockPos) {
-        if (blockPos == null) return false;
-        Box playerBox = mc.player.getBoundingBox();
+        if (blockPos == null || mc.player == null || mc.world == null) return false;
 
-        double minX = blockPos.getX();
-        double minY = blockPos.getY();
-        double minZ = blockPos.getZ();
-        Box blockBox = new Box(minX, minY, minZ, minX + 1, minY + 1, minZ + 1);
-        if (playerBox.intersects(blockBox)) {
-                return false;
+        // Full cube bounding box of the block
+        Box blockBox = new Box(blockPos);
+
+        // If player is inside the block’s bounding box → don’t place
+        if (mc.player.getBoundingBox().intersects(blockBox)) {
+            return false;
         }
 
-        BlockState blockState = mc.world.getBlockState(blockPos);
-        return blockState.isSolid() || blockState.isReplaceable();
+        BlockState state = mc.world.getBlockState(blockPos);
+
+        // A valid placement surface = block is solid and not air
+        return state != null && state.isSolidBlock(mc.world, blockPos) && !state.isAir();
     }
+
 
 
 

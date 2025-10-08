@@ -20,8 +20,10 @@ import net.minecraft.util.math.Direction;
 
 public class BedAura extends Module {
     public BedAura() {
+
         super("BedAura", "bedaura", Category.PLAYER);
     }
+
 
     BlockPos blockPos;
     BlockPos secondBlockPos;
@@ -115,7 +117,7 @@ public class BedAura extends Module {
     @EventHandler
     void onRenderWorld(RenderWorldEvent event) {
         if (blockPos != null) {
-            RenderUtils.renderBlock(blockPos, event, event.partialTicks);
+            //RenderUtils.renderBlock(blockPos, event, event.partialTicks);
         }
     }
 

@@ -4,16 +4,24 @@ import com.syuto.bytes.eventbus.EventHandler;
 import com.syuto.bytes.eventbus.impl.RenderWorldEvent;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
+import com.syuto.bytes.utils.impl.client.ChatUtils;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.VertexConsumers;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Matrix4f;
 
 import java.awt.*;
 
@@ -22,16 +30,26 @@ public class Esp extends Module {
         super("Esp", "Shows players through walls", Category.RENDER);
     }
 
+
+
     @EventHandler
     public void onRenderWorld(RenderWorldEvent event) {
         for (Entity entity : mc.world.getEntities()) {
             if (entity instanceof PlayerEntity en && entity.isAlive() && entity != mc.player) {
                 float delta = mc.getRenderTickCounter().getTickDelta(true);
-
-                RenderUtils.renderHealth(en, event, en.getHealth(), en.getMaxHealth() + en.getAbsorptionAmount(), (en.getHealth() / en.getMaxHealth() + en.getAbsorptionAmount()), delta);
+                RenderUtils.renderHealth(
+                        en,
+                        event,
+                        en.getHealth(),
+                        en.getMaxHealth() + en.getAbsorptionAmount(),
+                        (en.getHealth() / en.getMaxHealth() + en.getAbsorptionAmount()),
+                        delta
+                );
             }
         }
     }
+
+
 
 
     public boolean isEntityInView(Entity entity) {

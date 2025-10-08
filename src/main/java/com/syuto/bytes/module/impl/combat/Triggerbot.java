@@ -11,10 +11,19 @@ import com.syuto.bytes.setting.impl.ModeSetting;
 import com.syuto.bytes.setting.impl.NumberSetting;
 import com.syuto.bytes.utils.impl.player.PlayerUtil;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.InputUtil;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.MaceItem;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Vec3d;
+
+import static com.syuto.bytes.Byte.mc;
 
 
 public class Triggerbot extends Module {
@@ -34,8 +43,12 @@ public class Triggerbot extends Module {
 
     @EventHandler
     void onPreUpdate(PreUpdateEvent event) {
-        HitResult hit = mc.crosshairTarget;
 
+        if (mc.options.forwardKey.wasPressed() && !mc.options.forwardKey.isPressed()) {
+           // mc.options.forwardKey.setPressed(true);
+        }
+
+        HitResult hit = mc.crosshairTarget;
         if (hit.getType() == HitResult.Type.ENTITY) {
             entityHit = (EntityHitResult) hit;
             if (canAttack(entityHit)) {
@@ -50,15 +63,20 @@ public class Triggerbot extends Module {
                             shouldAttack = false;
                         }
                     }
+
+
+
                     case "1.9" -> {
                         if (mc.player.getAttackCooldownProgress(0.5f) >= 1.0) {
-                            mc.interactionManager.cancelBlockBreaking();
                             if (!mc.options.useKey.isPressed()) {
                                 mc.interactionManager.attackEntity(mc.player, entityHit.getEntity());
                                 mc.player.swingHand(Hand.MAIN_HAND);
+                                delay = System.currentTimeMillis() + 300;
                             }
                         }
                     }
+
+
                 }
             }
         } else {
@@ -92,6 +110,6 @@ public class Triggerbot extends Module {
     }
 
     private boolean canAttack(EntityHitResult hit) {
-        return entityHit != null && entityHit.getEntity().isAlive() && PlayerUtil.isHoldingWeapon() && entityHit.getEntity() instanceof PlayerEntity;
+        return entityHit != null && entityHit.getEntity().isAlive() && PlayerUtil.isHoldingWeapon() && entityHit.getEntity() instanceof LivingEntity;
     }
 }

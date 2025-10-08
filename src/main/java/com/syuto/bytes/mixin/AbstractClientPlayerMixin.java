@@ -26,14 +26,14 @@ public abstract class AbstractClientPlayerMixin extends PlayerEntity {
         Identifier cape = Identifier.of("byte", "capes/cape.png");
         if (this.getUuid().equals(mc.player.getUuid())) {
             SkinTextures skinTextures = cir.getReturnValue();
-            cir.setReturnValue(new SkinTextures(
+            /*cir.setReturnValue(new SkinTextures(
                     skinTextures.texture(),
                     skinTextures.textureUrl(),
                     cape,
                     cape,
                     skinTextures.model(),
                     skinTextures.secure()
-            ));
+            ));*/
         }
     }
 }

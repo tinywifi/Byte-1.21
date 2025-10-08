@@ -5,10 +5,18 @@ import com.syuto.bytes.eventbus.impl.RenderTickEvent;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+
+import java.awt.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
 
 public class RenderTest extends Module {
     public RenderTest() {
@@ -23,55 +31,89 @@ public class RenderTest extends Module {
     @EventHandler
     void onRenderTick(RenderTickEvent event) {
         float delta = mc.getRenderTickCounter().getTickDelta(false);
+
         for (Entity entity : mc.world.getEntities()) {
-            if (!(entity instanceof PlayerEntity en) || !en.isAlive() || !isEntityInView(en) || en == mc.player) continue;
+            if (!(entity instanceof PlayerEntity en) || !isEntityInView(en) || !en.isAlive() || en == mc.player)
+                continue;
 
-            double interpolatedX = en.prevX + (en.getX() - en.prevX) * delta;
-            double interpolatedY = en.prevY + (en.getY() - en.prevY) * delta;
-            double interpolatedZ = en.prevZ + (en.getZ() - en.prevZ) * delta;
+            int h = 0;
+            double x = en.prevX + (en.getX() - en.prevX) * delta;
+            double y = en.prevY + (en.getY() - en.prevY) * delta + en.getHeight() + 0.8;
+            double z = en.prevZ + (en.getZ() - en.prevZ) * delta;
 
-            float expansion = 0.1f;
-            Box interpolatedBox = en.getBoundingBox().expand(expansion).offset(
-                    interpolatedX - en.getX(),
-                    interpolatedY - en.getY(),
-                    interpolatedZ - en.getZ()
+            Vec3d worldPos = new Vec3d(x, y, z);
+            Vec3d screenPos = RenderUtils.worldToScreen(worldPos);
+
+
+            MatrixStack matrices = event.context.getMatrices();
+            String name = en.getName().getString() + " " + String.format("%.1f", en.getHealth()) + "HP";
+            int nameWidth = mc.textRenderer.getWidth(name);
+            int nameHeight = mc.textRenderer.fontHeight;
+
+            matrices.push();
+            matrices.translate(screenPos.x, screenPos.y, 0);
+            matrices.scale(1.0f, 1.0f, 1.0f);
+
+            float xx = -nameWidth / 2f;
+            float yy = 0;
+
+            RenderUtils.drawRect(
+                    event.context,
+                    xx + nameWidth /2,
+                    yy + nameHeight / 2,
+                    nameWidth + 2,
+                    nameHeight + 2,
+                    new Color(0,0,0,125).getRGB()
             );
 
-            Vec3d[] corners = new Vec3d[8];
-            for (int i = 0; i < 8; i++) {
-                double x = (i & 1) == 0 ? interpolatedBox.minX : interpolatedBox.maxX;
-                double y = (i & 2) == 0 ? interpolatedBox.minY : interpolatedBox.maxY;
-                double z = (i & 4) == 0 ? interpolatedBox.minZ : interpolatedBox.maxZ;
-                corners[i] = new Vec3d(x, y, z);
-            }
 
-            float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE;
-            float maxX = Float.MIN_VALUE, maxY = Float.MIN_VALUE;
+            RenderUtils.drawText(
+                    event.context,
+                    name,
+                    -nameWidth / 2f,
+                    0,
+                    Color.WHITE.getRGB()
+            );
 
-            for (Vec3d corner : corners) {
-                Vec3d screenPos = RenderUtils.worldToScreen(corner);
-                if (screenPos != null) {
-                    minX = Math.min(minX, (float) screenPos.x);
-                    minY = Math.min(minY, (float) screenPos.y);
-                    maxX = Math.max(maxX, (float) screenPos.x);
-                    maxY = Math.max(maxY, (float) screenPos.y);
-                }
-            }
+            int itemSpacing = 15;
+            List<ItemStack> armor = new ArrayList<>();
+            armor.add(en.getMainHandStack());
+            armor.add(en.getOffHandStack());
 
-            if (minX < maxX && minY < maxY) {
-                RenderUtils.drawRectOutline(event.context.getMatrices(), minX, maxX, maxY, minY, 0xFFFFFFFF);
+            en.getArmorItems().forEach(armor::add);
+
+
+            Collections.reverse(armor);
+
+            int totalWidth = armor.size() * itemSpacing;
+            int startX = (int) (xx + (nameWidth / 2f) - (totalWidth / 2f));
+
+            for (ItemStack item : armor) {
+                event.context.drawItem(item, startX, -20);
+                startX += itemSpacing;
             }
+            matrices.pop();
         }
     }
 
 
 
 
-
     public boolean isEntityInView(Entity entity) {
-        Vec3d playerLook = mc.player.getRotationVec(1.0F);
-        Vec3d toEntity = entity.getPos().subtract(mc.player.getPos()).normalize();
-        double angle = Math.acos(playerLook.dotProduct(toEntity));
-        return Math.toDegrees(angle) < mc.options.getFov().getValue() / 1.5f;
+        Entity cameraEntity = mc.getCameraEntity();
+        if (cameraEntity == null) return false;
+        Vec3d cameraLook = cameraEntity.getRotationVec(1.0F).normalize();
+        Vec3d toEntity = entity.getPos()
+                .add(0, entity.getStandingEyeHeight(), 0)
+                .subtract(cameraEntity.getCameraPosVec(1.0F))
+                .normalize();
+
+        double dot = cameraLook.dotProduct(toEntity);
+
+        double fov = mc.options.getFov().getValue();
+        double fovRadians = Math.toRadians(fov);
+        double threshold = Math.cos(fovRadians);
+
+        return dot > threshold;
     }
 }

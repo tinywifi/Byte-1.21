@@ -8,6 +8,7 @@ import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.setting.impl.ModeSetting;
 import com.syuto.bytes.setting.impl.NumberSetting;
 import com.syuto.bytes.utils.impl.player.MovementUtil;
+import com.syuto.bytes.utils.impl.player.PlayerUtil;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.util.math.Vec3d;
 

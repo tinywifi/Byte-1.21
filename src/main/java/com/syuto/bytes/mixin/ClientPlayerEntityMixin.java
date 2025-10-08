@@ -4,9 +4,12 @@ import com.mojang.authlib.GameProfile;
 import com.syuto.bytes.Byte;
 import com.syuto.bytes.eventbus.impl.PreMotionEvent;
 import com.syuto.bytes.eventbus.impl.PreUpdateEvent;
+import com.syuto.bytes.eventbus.impl.RotationEvent;
 import com.syuto.bytes.eventbus.impl.SlowDownEvent;
 import com.syuto.bytes.module.ModuleManager;
 import com.syuto.bytes.module.impl.movement.NoSlow;
+import com.syuto.bytes.module.impl.render.RenderingTest;
+import com.syuto.bytes.utils.impl.rotation.RotationUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -22,6 +25,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static com.syuto.bytes.Byte.mc;
 
 @Mixin(ClientPlayerEntity.class)
 public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity {
@@ -69,11 +74,54 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 
     @Shadow public abstract boolean isSubmergedInWater();
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;tick()V"), method = "tick")
-    public void onPreUpdate(CallbackInfo ci) {
-        Byte.INSTANCE.eventBus.post(new PreUpdateEvent());
+
+    @Inject(
+            at = @At(value = "HEAD"),
+            method = "tick"
+    )
+    public void start(CallbackInfo ci) {
+        RotationUtils.setCamYaw(mc.player.getYaw());
+
+        RotationUtils.setLastRotationYaw(RotationUtils.getRotationYaw());
+        RotationUtils.setLastRotationPitch(RotationUtils.getRotationPitch());
+
+        RotationEvent rotationEvent = new RotationEvent(
+                this.getYaw(),
+                this.getPitch()
+        );
+
+        Byte.INSTANCE.eventBus.post(rotationEvent);
+
+        RotationUtils.yawChanged = rotationEvent.getYaw() != this.getYaw();
+        RotationUtils.pitchChanged = rotationEvent.getPitch() != this.getPitch();
+
+        RotationUtils.setRotationYaw(rotationEvent.getYaw());
+        RotationUtils.setRotationPitch(rotationEvent.getPitch());
+
+        //mc.player.setPitch(RotationUtils.getRotationPitch());
+
+        RenderingTest test = ModuleManager.getModule(RenderingTest.class);
+        if (test != null && test.isEnabled()) {
+            mc.player.setYaw(RotationUtils.getRotationYaw());
+        }
     }
 
+    @Inject(
+            at = @At(value = "TAIL"),
+            method = "tick"
+    )
+
+    public void end(CallbackInfo ci) {
+        RenderingTest test = ModuleManager.getModule(RenderingTest.class);
+        if (test != null && test.isEnabled()) {
+            mc.player.setYaw(RotationUtils.getCamYaw());
+        }
+    }
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;tick()V"), method = "tick")
+    public void onPreUpdate(CallbackInfo ci) {
+
+        Byte.INSTANCE.eventBus.post(new PreUpdateEvent());
+    }
 
     /**
      * @author
@@ -85,10 +133,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
                 this.getX(),
                 this.getBoundingBox().minY,
                 this.getZ(),
-                this.getYaw(),
-                this.getPitch(),
-                this.lastYaw,
-                this.lastPitch,
+                RotationUtils.getRotationYaw(),
+                RotationUtils.getRotationPitch(),
+                RotationUtils.getLastRotationYaw(),
+                RotationUtils.getLastRotationPitch(),
                 this.isOnGround(),
                 this.isSneaking(),
                 this.isSprinting(),
@@ -99,13 +147,12 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
         if (this.isCamera()) {
 
             Byte.INSTANCE.eventBus.post(event);
-            PreMotionEvent.pitchChanged = PreMotionEvent.pitch != getPitch();
 
             double d = event.posX - this.lastX;
             double e = event.posY - this.lastBaseY;
             double f = event.posZ - this.lastZ;
-            double g = (double)(event.yaw - this.lastYaw);
-            double h = (double)(event.pitch - this.lastPitch);
+            double g = (double)(event.yaw - event.lastYaw);
+            double h = (double)(event.pitch - event.lastPitch);
             ++this.ticksSinceLastPositionPacketSent;
             boolean bl = MathHelper.squaredMagnitude(d, e, f) > MathHelper.square(2.0E-4) || this.ticksSinceLastPositionPacketSent >= 20;
             boolean bl2 = g != 0.0 || h != 0.0;
@@ -136,6 +183,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
             this.autoJumpEnabled = (Boolean)this.client.options.getAutoJump().getValue();
         }
     }
+
 
     /**
      * @author

@@ -42,10 +42,10 @@ public abstract class Module extends SettingHolder {
             if (this.enabled) {
                 onEnable();
                 Byte.INSTANCE.eventBus.register(this);
-                ChatUtils.print("Enabled " + this.name);
+                //ChatUtils.print("Enabled " + this.name);
             } else {
                 Byte.INSTANCE.eventBus.unregister(this);
-                ChatUtils.print("Disabled " + this.name);
+                //ChatUtils.print("Disabled " + this.name);
                 onDisable();
             }
         }

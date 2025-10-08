@@ -3,11 +3,13 @@ package com.syuto.bytes.module.impl.player;
 import com.syuto.bytes.eventbus.EventHandler;
 import com.syuto.bytes.eventbus.impl.PreMotionEvent;
 import com.syuto.bytes.eventbus.impl.PreUpdateEvent;
+import com.syuto.bytes.eventbus.impl.RotationEvent;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.utils.impl.client.ChatUtils;
 import com.syuto.bytes.utils.impl.player.MovementUtil;
 import com.syuto.bytes.utils.impl.player.PlayerUtil;
+import com.syuto.bytes.utils.impl.player.WorldUtil;
 import com.syuto.bytes.utils.impl.rotation.RotationUtils;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -35,6 +37,7 @@ public class Scaffold extends Module {
     private float[] rots, last;
     private int blockSlot = -1;
     private int airTicks = 0;
+    private ItemStack itemStack;
 
 
     public Scaffold() {
@@ -51,84 +54,91 @@ public class Scaffold extends Module {
     @Override
     public void onEnable() {
         super.onEnable();
+        itemStack = mc.player.getMainHandStack();
         blockSlot = getBlockSlot();
     }
 
 
     @EventHandler
     public void onPreUpdate(PreUpdateEvent e) {
+        if (itemStack != null) {
+            mc.player.getMainHandStack();
+        }
         blockSlot = getBlockSlot();
 
         if (blockSlot != -1) {
             mc.player.getInventory().setSelectedSlot(blockSlot);
         }
+        airTicks = !mc.player.isOnGround() ? airTicks + 1 : 0;
 
 
         if (mc.player.getInventory().getStack(mc.player.getInventory().selectedSlot) != null) {
-            place();
-            place();
-            place();
 
+            if (mc.player.isOnGround()) {
+                mc.player.setSprinting(true);
+                mc.options.sprintKey.setPressed(true);
+            } else {
+                mc.player.setSprinting(false);
+                mc.options.sprintKey.setPressed(false);
+            }
+            place();
+            //place();
         }
 
-        //mc.player.setSprinting(false);
-       //mc.options.sprintKey.setPressed(false);
+    }
+
+    @EventHandler
+    public void onRotation(RotationEvent event) {
+        if (last == null)
+            last = new float[]{RotationUtils.getLastRotationYaw(), RotationUtils.getLastRotationPitch()};
+
+        if (targetBlock != null) {
+            if (targetBlock != blok) {
+                rots = RotationUtils.getBlockRotations(this.targetBlock, this.facing);
+                float angle = rots[0] % 360;
+                //rots[0] = Math.round(angle / 45) * 45 % 360;
+                rots[0] = MovementUtil.directionAtan() + 180;
+
+                if (mc.player.isOnGround() && mc.options.jumpKey.isPressed()) {
+                    //rots[0] = MovementUtil.directionAtan();
+                }
+
+                rots = RotationUtils.getFixedRotation(rots, last);
+                blok = targetBlock;
+            }
+
+            event.setYaw(rots[0]);
+            event.setPitch(rots[1]);
+
+            this.last = new float[]{RotationUtils.getLastRotationYaw(), RotationUtils.getLastRotationPitch()};
+        }
     }
 
     @EventHandler
     public void onPreMotion(PreMotionEvent event) {
-        if (last == null) {
-            last = new float[]{mc.player.getYaw(), mc.player.getPitch()};
-        }
+        Vec3d motion = mc.player.getVelocity();
+        Vec3d pos = mc.player.getPos();
+
         if (mc.player.isOnGround()) {
             airTicks = 0;
         } else {
             airTicks++;
         }
-
-        if (targetBlock != null) {
-            rots = RotationUtils.getBlockRotations(this.targetBlock, this.facing);
-
-            rots[0] = yaw();
-
-
-            rots = RotationUtils.getFixedRotation(rots, last);
-        }
-
-
-        if (rots != null) {
-
-            event.yaw = rots[0];
-            event.pitch = rots[1];
-
-            RotationUtils.turnHead(event.yaw);
-
-            last = new float[]{event.yaw, event.pitch};
-        }
-
-
-        Vec3d motion = mc.player.getVelocity();
         int simpleY = (int) Math.round((event.posY % 1.0D) * 100.0D);
 
         // ChatUtils.print(simpleY + " " + airTicks);
-        if (mc.options.jumpKey.isPressed() && MovementUtil.isMoving()) {
+        /*if (mc.options.jumpKey.isPressed() && !mc.options.useKey.isPressed()) {
             switch(simpleY) {
                 case 0 -> {
                     mc.player.setVelocity(motion.x, 0.42f, motion.z);
                     if (MovementUtil.isMoving()) {
-                        MovementUtil.setSpeed(0.28);
-                    }
-                    if (airTicks == 6) {
-                        event.posY += 1E-14;
-                        mc.player.setVelocity(motion.x, -.42, motion.z);
-                        airTicks = -1;
-                        //ChatUtils.print("bye " + airTicks);
+                        MovementUtil.setSpeed(0.25);
                     }
                 }
                 case 42 -> {
                     mc.player.setVelocity(motion.x, 0.33f, motion.z);
                     if (MovementUtil.isMoving()) {
-                        MovementUtil.setSpeed(0.28);
+                        MovementUtil.setSpeed(0.25);
                     }
                 }
                 case 75 -> {
@@ -136,15 +146,16 @@ public class Scaffold extends Module {
                 }
 
             }
-        }
+        }*/
 
-        targetBlock = null;
+       //
     }
 
 
 
     public void place() {
-        blockInfo = findBlocks(3);
+        // Use WorldUtil.findClosest instead of findBlocks
+        int[] blockInfo = findBlocks(3);
 
         if (blockInfo == null) {
             return;
@@ -157,22 +168,34 @@ public class Scaffold extends Module {
 
         facing = Direction.byId(blockFacing);
 
-        //if (facing == Direction.UP) return;
+        if (facing == Direction.UP && mc.options.useKey.isPressed()) return;
+
+        ChatUtils.print("Direction " + facing.asString());
+
+        MinecraftClient client = MinecraftClient.getInstance();
 
         targetBlock = new BlockPos(blockX, blockY, blockZ);
 
-        BlockPos blockPos = targetBlock;
+        double hitX = targetBlock.getX() + 0.5 + getCoord(blockFacing, "x") * 0.5;
+        double hitY = targetBlock.getY() + 0.5 + getCoord(blockFacing, "y") * 0.5;
+        double hitZ = targetBlock.getZ() + 0.5 + getCoord(blockFacing, "z") * 0.5;
+        Vec3d hitVec = new Vec3d(hitX, hitY, hitZ);
 
-        double hitX = blockX + 0.5 + getCoord(blockFacing, "x") * 0.5;
-        double hitY = blockY + 0.5 + getCoord(blockFacing, "y") * 0.5;
-        double hitZ = blockZ + 0.5 + getCoord(blockFacing, "z") * 0.5;
+        blockHitResult = new BlockHitResult(hitVec, facing, targetBlock, false);
+        client.interactionManager.interactBlock(client.player, client.player.getActiveHand(), blockHitResult);
+        client.player.swingHand(client.player.getActiveHand());
+    }
+
+
+    private void placeBlockAt(MinecraftClient client, BlockPos blockPos, int blockFacing) {
+        double hitX = blockPos.getX() + 0.5 + getCoord(blockFacing, "x") * 0.5;
+        double hitY = blockPos.getY() + 0.5 + getCoord(blockFacing, "y") * 0.5;
+        double hitZ = blockPos.getZ() + 0.5 + getCoord(blockFacing, "z") * 0.5;
         Vec3d hitVec = new Vec3d(hitX, hitY, hitZ);
 
         blockHitResult = new BlockHitResult(hitVec, facing, blockPos, false);
-        MinecraftClient client = MinecraftClient.getInstance();
         client.interactionManager.interactBlock(client.player, client.player.getActiveHand(), blockHitResult);
-        client.player.swingHand(mc.player.getActiveHand());
-
+        client.player.swingHand(client.player.getActiveHand());
     }
 
     double getCoord(int facing, String axis) {
@@ -208,11 +231,12 @@ public class Scaffold extends Module {
                 }
             }
 
-            for (int offsetY = 0; offsetY <= range; offsetY++) {
-                BlockPos belowPlayerOffset = belowPlayer.offset(Direction.Axis.Y, -offsetY);
+            for (int offset = 0; offset <= range; offset++) {
+                BlockPos belowPlayerOffset = belowPlayer.down(offset);
                 for (int enumFacing : enumFacings) {
                     if (enumFacing != 1) {
                         BlockPos offsetPos = offsetPosition(belowPlayerOffset, enumFacing);
+
                         if (world.getBlockState(offsetPos).isAir()) {
                             for (int enumFacing2 : enumFacings) {
                                 if (enumFacing2 != 1) {
@@ -230,6 +254,7 @@ public class Scaffold extends Module {
 
         return null;
     }
+
 
 
 
@@ -287,23 +312,5 @@ public class Scaffold extends Module {
         }
         return true;
     }
-
-
-    public float yaw() {
-        float quad = MovementUtil.directionAtan() % 90;
-        float offset;
-
-        if (quad < 10 || quad >= 80) {
-            offset = 55.5f;
-        } else if (quad < 45) {
-            offset = 45f;
-        } else {
-            offset = -45f;
-        }
-
-        return MovementUtil.directionAtan() + 180 + offset;
-    }
-
-
 
 }

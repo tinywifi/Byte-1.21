@@ -8,7 +8,11 @@ import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.setting.impl.ModeSetting;
 
+import net.minecraft.client.input.KeyboardInput;
 import net.minecraft.item.SwordItem;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.util.math.Vec3d;
 
 public class NoSlow extends Module {
     public ModeSetting modes = new ModeSetting("mode",this,"Vanilla", "Epsilon", "Ground");
@@ -31,8 +35,8 @@ public class NoSlow extends Module {
 
     @EventHandler
     void onPreMotion(PreMotionEvent event) {
-
         boolean ground = mc.player.isOnGround();
+        Vec3d pos = mc.player.getPos();
 
         this.ground = ground ? this.ground + 1 : 0;
 
@@ -50,11 +54,15 @@ public class NoSlow extends Module {
                     }
                 }
                 case "Ground" -> {
+                    mc.interactionManager.clickSlot(mc.player.currentScreenHandler.syncId, 36, 1, SlotActionType.SWAP, mc.player);
 
                 }
             }
         }
     }
+
+
+
 
 
     public boolean canNoSlow() {

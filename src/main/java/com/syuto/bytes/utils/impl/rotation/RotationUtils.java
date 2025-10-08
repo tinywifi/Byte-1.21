@@ -1,8 +1,12 @@
 package com.syuto.bytes.utils.impl.rotation;
 
+import com.syuto.bytes.Byte;
 import com.syuto.bytes.utils.impl.client.ChatUtils;
 import com.syuto.bytes.utils.impl.player.MovementUtil;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.Mouse;
+import net.minecraft.client.gui.hud.PlayerListHud;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -12,6 +16,15 @@ import net.minecraft.util.math.Vec3d;
 import static com.syuto.bytes.Byte.mc;
 
 public class RotationUtils {
+
+
+    public static boolean yawChanged;
+    public static boolean pitchChanged;
+
+    @Setter
+    @Getter
+    public static float rotationYaw, rotationPitch, lastRotationYaw, lastRotationPitch, camYaw;
+
 
     public static float[] getFixedRotation(float[] rotations, float[] lastRotations) {
         double gcd = gcd();
@@ -101,11 +114,10 @@ public class RotationUtils {
         return MathHelper.clamp(pitch, -90.0F, 90.0F);
     }
 
-
     public static void turnHead(float yaw) {
         float f = MathHelper.wrapDegrees(yaw - mc.player.bodyYaw);
         mc.player.bodyYaw += f * 0.3F;
-        float h = 50.0f;
+        float h = 85.0f;
         if (Math.abs(f) > h) {
             mc.player.bodyYaw += f - (float) MathHelper.sign(f) * h;
         }

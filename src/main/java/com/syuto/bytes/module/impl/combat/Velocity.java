@@ -15,10 +15,10 @@ import static com.syuto.bytes.Byte.mc;
 public class Velocity extends Module {
     public NumberSetting horizontal = new NumberSetting("H", this,100,0, 100, 1);
     public NumberSetting vertical = new NumberSetting("V", this,100,0, 100, 1);
-    public BooleanSetting explosion = new BooleanSetting("Explosions",this,false);
 
     public Velocity() {
         super("Velocity", "Anti knockback", Category.COMBAT);
+        setSuffix(() -> horizontal.getValue().intValue() + "% " + vertical.getValue().intValue() + "%");
     }
 
 

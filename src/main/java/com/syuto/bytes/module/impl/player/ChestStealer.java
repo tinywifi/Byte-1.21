@@ -25,7 +25,7 @@ public class ChestStealer extends Module {
     void onPreUpdate(PreUpdateEvent event) {
         if (mc.currentScreen instanceof GenericContainerScreen e) {
             GenericContainerScreenHandler handler = e.getScreenHandler();
-            if (handler.getType() != null && (e.getTitle().getString().equals("Large Chest") || e.getTitle().getString().equals("Chest"))) {
+            if (handler.getType() != null && (e.getTitle().getString().contains("Shulker") || e.getTitle().getString().equals("Chest"))) {
                 for (int i = 0; i < handler.getInventory().size(); i++) {
                     Slot slot = handler.slots.get(i);
                     ItemStack stack = slot.getStack();

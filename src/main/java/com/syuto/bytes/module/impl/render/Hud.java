@@ -16,6 +16,7 @@ import net.minecraft.client.render.VertexConsumers;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 
 import java.awt.*;
@@ -102,14 +103,17 @@ public class Hud extends Module {
             }
         }
 
-        RenderUtils.drawText(
+        //Vec3d pos = mc.player.getPos();
+        //String text = String.format("%.1f", pos.x) + " X " + String.format("%.1f", pos.y) + " Y " + String.format("%.1f", pos.x) + " Z";
+
+        /*RenderUtils.drawText(
                 event.context,
-                "Byte Beta v1.5",
+                text,
                 10,
                 10,
                 cyan.getRGB()
 
-        );
+        );*/
 
 
         //DrawUtil.end();

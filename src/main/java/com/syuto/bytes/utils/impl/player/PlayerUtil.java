@@ -10,6 +10,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -33,39 +34,13 @@ public class PlayerUtil {
 
     private static Vec3d getClosestPoint(Entity target) {
         Box hb = target.getBoundingBox();
-        Vec3d start = getBoxMinPoint(hb);
-        Vec3d s = getBoxSize(hb);
-        Vec3d eP = mc.player.getEyePos();
+        Vec3d eyePos = mc.player.getEyePos();
 
-        Vec3d closest = null;
-        double closestDist = Double.MAX_VALUE;
-        double stepSize = 0.05d;
-        for (double dX = 0; dX <= s.x; dX += stepSize) {
-            for (double dY = 0; dY <= s.y; dY += stepSize) {
-                for (double dZ = 0; dZ <= s.z; dZ += stepSize) {
-                    Vec3d point = start.add(dX, dY, dZ);
-                    if (!hb.contains(point)) continue;
-                    double d = point.squaredDistanceTo(eP);
-                    if (d < closestDist) {
-                        closestDist = d;
-                        closest = point;
-                    }
-                }
-            }
-        }
-        return closest;
-    }
+        double cx = MathHelper.clamp(eyePos.x, hb.minX, hb.maxX);
+        double cy = MathHelper.clamp(eyePos.y, hb.minY, hb.maxY);
+        double cz = MathHelper.clamp(eyePos.z, hb.minZ, hb.maxZ);
 
-
-    private static Vec3d getBoxSize(Box box) {
-        double hbX = box.maxX - box.minX;
-        double hbY = box.maxY - box.minY;
-        double hbZ = box.maxZ - box.minZ;
-        return new Vec3d(hbX, hbY, hbZ);
-    }
-
-    private static Vec3d getBoxMinPoint(Box box) {
-        return new Vec3d(box.minX, box.minY, box.minZ);
+        return new Vec3d(cx, cy, cz);
     }
 
     public static HitResult raycast(float yaw, float pitch, double maxDistance, float tickDelta, boolean includeFluids) {
@@ -75,7 +50,7 @@ public class PlayerUtil {
 
         HitResult blockHit = mc.world.raycast(new RaycastContext(
                 startPos, endPos,
-                RaycastContext.ShapeType.OUTLINE,
+                RaycastContext.ShapeType.COLLIDER,
                 includeFluids ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE,
                 mc.player
         ));
@@ -87,6 +62,22 @@ public class PlayerUtil {
         }
 
         return null;
+    }
+
+    public static BlockHitResult raycastBlocks(float yaw, float pitch, double maxDistance, float tickDelta, boolean includeFluids) {
+        Vec3d startPos = mc.player.getCameraPosVec(tickDelta);
+        Vec3d direction = mc.player.getRotationVector(pitch, yaw);
+        Vec3d endPos = startPos.add(direction.multiply(maxDistance));
+
+        BlockHitResult blockHit = mc.world.raycast(new RaycastContext(
+                startPos,
+                endPos,
+                RaycastContext.ShapeType.COLLIDER,
+                includeFluids ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE,
+                mc.player
+        ));
+
+        return blockHit;
     }
 
     // Entity raycasting method (manual)

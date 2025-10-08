@@ -1,5 +1,6 @@
 package com.syuto.bytes.module.impl.combat;
 
+import com.syuto.bytes.Byte;
 import com.syuto.bytes.eventbus.EventHandler;
 import com.syuto.bytes.eventbus.impl.*;
 import com.syuto.bytes.mixin.SendPacketMixinAccessor;
@@ -19,10 +20,7 @@ import dev.blend.util.render.DrawUtil;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
+import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -33,6 +31,8 @@ import net.minecraft.util.math.Vec3d;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+
+import static com.syuto.bytes.Byte.mc;
 
 
 public class Killaura extends Module {
@@ -59,7 +59,6 @@ public class Killaura extends Module {
     @Override
     public void onDisable() {
 
-
         if (this.blocking) {
             mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, Direction.DOWN));
             this.blocking = false;
@@ -77,8 +76,10 @@ public class Killaura extends Module {
     @EventHandler
     public void onPreUpdate(PreUpdateEvent event) {
         var hello = 0;
-        if (lastRotation == null) {
-            lastRotation = new float[]{mc.player.getYaw(), mc.player.getPitch()};
+
+        if (autoBlock.getValue() != "None") {
+           // ChatUtils.print("hi");
+            AnimationUtils.setBlocking(target != null);
         }
 
         if (targeting.getValue().equals("Single")) {
@@ -87,42 +88,46 @@ public class Killaura extends Module {
             updateSwitchTarget();
         }
 
-        if (rotations != null) {
-            rotations = RotationUtils.getFixedRotation(rotations, lastRotation);
-        }
-
         if (target != null && rotations != null) {
-            EntityHitResult result = (EntityHitResult) PlayerUtil.raycast(rotations[0], rotations[1], swing.getValue().doubleValue(), delta, false);
+            EntityHitResult result = (EntityHitResult) PlayerUtil.raycast(RotationUtils.getRotationYaw(), RotationUtils.getRotationPitch(), swing.getValue().doubleValue(), delta, false);
             ticks++;
-            if (result != null && result.getEntity().equals(this.target)) {
+
+            handleAutoBlock();
+            executeAttack(null);
+            /*if (result != null && result.getEntity().equals(this.target)) {
                 handleAutoBlock();
                 executeAttack(result);
-            }
-        } else {
-            if (blocking) {
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, Direction.DOWN));;
-                this.blocking = false;
-                ChatUtils.print("Unblocked");
-            }
+            }*/
         }
 
-        if (autoBlock.getValue() != "None") {
-            AnimationUtils.setBlocking(target != null);
+        if (blocking && target == null) {
+            mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, Direction.DOWN));;
+            this.blocking = false;
+            ChatUtils.print("Unblocked");
         }
+
     }
 
     @EventHandler
-    public void onPreMotion(PreMotionEvent event) {
-        if (rotations != null) {
-            float[] move = MovementUtil.move(rotations[0]);
+    public void onRotation(RotationEvent event) {
+        if (lastRotation == null)
+            lastRotation = new float[]{RotationUtils.getLastRotationYaw(), RotationUtils.getLastRotationPitch()};
 
-        }
-        if (rotations != null && target != null && canSwing(target)) {
-            event.yaw = rotations[0];
-            event.pitch = rotations[1];
-            RotationUtils.turnHead(event.yaw);
+        if (target != null) {
+            rotations = RotationUtils.getRotations(
+                    lastRotation,
+                    mc.player.getEyePos(),
+                    target
+            );
 
-            this.lastRotation = this.rotations;
+            rotations = RotationUtils.getFixedRotation(rotations, lastRotation);
+
+            if (canSwing(target)) {
+                event.setYaw(rotations[0]);
+                event.setPitch(rotations[1]);
+
+                this.lastRotation = new float[]{RotationUtils.getLastRotationYaw(), RotationUtils.getLastRotationPitch()};
+            }
         }
     }
 
@@ -143,17 +148,13 @@ public class Killaura extends Module {
     @EventHandler
     public void onRenderTick(RenderTickEvent e) {
         if (target != null) {
+
+
             if (System.currentTimeMillis() - lastAttackTime >= attackDelay && canSwing(target)) {
                 lastAttackTime = System.currentTimeMillis();
                 updateAttackDelay();
                 shouldAttack = true;
             }
-            rotations = RotationUtils.getRotations(
-                    lastRotation,
-                    mc.player.getEyePos(),
-                    target
-            );
-
 
             DrawContext context = e.context;
 
@@ -308,32 +309,26 @@ public class Killaura extends Module {
     }
 
     private void handleAutoBlock() {
-        if (autoBlock.getValue().equals("Watchdog")) {
-            if (!firstBlock) {
-                //unblock();
-                block(rotations[0], rotations[1]);
-                ChatUtils.print("First Nigger");
-                firstBlock = true;
-            } else if (ticks % 7 == 0) {
-                swapSlots();
-                block(rotations[0], rotations[1]);
-                ChatUtils.print("Nigger");
-            }
+        if (autoBlock.getValue().equals("Vanilla")) {
+            //swapSlots();
+            block(mc.player.getYaw(), mc.player.getPitch());
         }
     }
 
     private void executeAttack(EntityHitResult r) {
-        if (canSwing(target) && shouldAttack) { //shouldAttack mc.player.getAttackCooldownProgress(0.5f) >= 1.0
+        if (canSwing(target) && mc.player.getAttackCooldownProgress(0.5f) >= 1.0) { //shouldAttack mc.player.getAttackCooldownProgress(0.5f) >= 1.0
+
+            handleAutoBlock();
             mc.interactionManager.attackEntity(mc.player, target);
-            mc.getNetworkHandler().sendPacket(
+            /*mc.getNetworkHandler().sendPacket(
                     PlayerInteractEntityC2SPacket.interactAt(
                             r.getEntity(),
                             mc.player.isSneaking(),
                             Hand.MAIN_HAND,
                             new Vec3d(0, 0, 0)
                     )
-            );
-            mc.interactionManager.interactEntity(mc.player, target, Hand.MAIN_HAND);
+            );*/
+            //mc.interactionManager.interactEntity(mc.player, target, Hand.MAIN_HAND);
             mc.player.swingHand(mc.player.getActiveHand());
             shouldAttack = false;
         }

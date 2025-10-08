@@ -55,9 +55,4 @@ public class AnimationUtils {
 
     }
 
-
-    public static double easeIn(double x) {
-        return -(Math.cos(Math.PI * x) - 1) / 2;
-    }
-
 }

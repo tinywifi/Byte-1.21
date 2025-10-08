@@ -1,20 +1,20 @@
 package com.syuto.bytes.module.impl.combat;
 
 import com.syuto.bytes.eventbus.EventHandler;
-import com.syuto.bytes.eventbus.impl.PreMotionEvent;
-import com.syuto.bytes.eventbus.impl.RenderTickEvent;
+import com.syuto.bytes.eventbus.impl.*;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
+import com.syuto.bytes.setting.impl.NumberSetting;
+import com.syuto.bytes.utils.impl.client.ChatUtils;
 import com.syuto.bytes.utils.impl.player.PlayerUtil;
-import com.syuto.bytes.utils.impl.player.WorldUtil;
-import com.syuto.bytes.utils.impl.rotation.RotationUtils;
-import net.minecraft.command.argument.EntityAnchorArgumentType;
+import com.syuto.bytes.utils.impl.render.RenderUtils;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import org.spongepowered.asm.mixin.Unique;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class AimAssist extends Module {
 
@@ -22,52 +22,46 @@ public class AimAssist extends Module {
         super("Aim Assist", "Aims for you nigger.", Category.COMBAT);
     }
 
-    private float[] rots, last;
-    private Entity closestEntity;
+    private final NumberSetting delay = new NumberSetting("delay", this, 200, 0, 1000, 50);
 
+    private boolean shouldSwitchBack = false;
+    private long switchTime = 0;
+
+    private boolean switchedThisTick = false;
+
+    private final List<PlayerEntity> targets = new ArrayList<>();
+    public static PlayerEntity target;
 
     @EventHandler
-    void onPreMotion(PreMotionEvent e) {
-        if (last == null) {
-            last = new float[]{mc.player.getYaw(), mc.player.getPitch()};
-        }
-        closestEntity = null;
-        for (Entity entity : mc.world.getEntities()) {
-            if (entity instanceof PlayerEntity livingEntity && entity != mc.player) {
-                double distance = PlayerUtil.getBiblicallyAccurateDistanceToEntity(entity);
-                if (! WorldUtil.isOnTeam(livingEntity) && distance <= 3.5 && livingEntity.isAlive()) {
-                    closestEntity = entity;
-                }
+    public void onPreUpdate(PreUpdateEvent event) {
+        target = null;
+        targets.addAll(mc.world.getPlayers().stream()
+                .filter(ent -> ent != mc.player)
+                .sorted(Comparator.comparingDouble(PlayerUtil::getBiblicallyAccurateDistanceToEntity))
+                .limit(4)
+                .toList());
+
+        for (AbstractClientPlayerEntity player : mc.world.getPlayers()) {
+            if (PlayerUtil.getBiblicallyAccurateDistanceToEntity(player) <= 4 && player != mc.player) {
+                target = player;
             }
         }
 
-        if (closestEntity != null) {
-            if (rots != null) {
-                rots = RotationUtils.getFixedRotation(rots, last);
-            }
+        if (target != null && mc.options.attackKey.isPressed() && PlayerUtil.isHoldingWeapon()) {
+            mc.interactionManager.attackEntity(mc.player, target);
+            mc.player.swingHand(mc.player.getActiveHand());
 
-        } else {
-            last = null;
-            rots = null;
+            //ChatUtils.print(target.getName());
         }
+
 
     }
 
-
     @EventHandler
-    void onRenderTick(RenderTickEvent e) {
-        if (last != null && closestEntity != null) {
-            rots = RotationUtils.getRotations(last, mc.player.getEyePos(), closestEntity);
+    public void onRenderWorld(RenderWorldEvent e) {
+        if (target != null) {
+            RenderUtils.renderBox(target, e, e.partialTicks);
         }
-
-
-        if (rots != null && mc.options.attackKey.isPressed()) {
-            mc.player.setYaw(MathHelper.lerpAngleDegrees(0.05f, last[0], rots[0]));
-            mc.player.setPitch(MathHelper.lerpAngleDegrees(0.05f, last[1], rots[1]));
-
-            last = new float[]{mc.player.getYaw(), mc.player.getPitch()};
-        }
-
     }
 
 }

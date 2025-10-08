@@ -16,5 +16,4 @@ public abstract class SettingHolder {
                 .findFirst()
                 .orElse(null);
     }
-
 }

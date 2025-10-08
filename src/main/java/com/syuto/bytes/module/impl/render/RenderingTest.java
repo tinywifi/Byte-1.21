@@ -5,6 +5,7 @@ import com.syuto.bytes.eventbus.impl.RenderTickEvent;
 import com.syuto.bytes.module.Module;
 import com.syuto.bytes.module.api.Category;
 import com.syuto.bytes.utils.impl.render.RenderUtils;
+import com.syuto.bytes.utils.impl.rotation.RotationUtils;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormat;
@@ -22,8 +23,8 @@ public class RenderingTest extends Module {
 
 
     @EventHandler
-    void onRenderTick(RenderTickEvent event) {
+    public void onRenderTick(RenderTickEvent event) {
+        mc.player.renderYaw = RotationUtils.getCamYaw();
     }
-
 
 }
